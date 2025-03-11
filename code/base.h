@@ -1,0 +1,36 @@
+#ifndef BASE_H
+#define BASE_H
+
+typedef int bool;
+#define true 1
+#define false 0
+
+char const *spaces = "                                                                                                                                                                                                        ";
+
+typedef   signed char        int8;
+typedef unsigned char       uint8;
+typedef          short       int16;
+typedef unsigned short      uint16;
+typedef   signed int         int32;
+typedef unsigned int        uint32;
+typedef   signed long long   int64;
+typedef unsigned long long  uint64;
+typedef          float     float32;
+typedef          double    float64;
+
+#define ARRAY_COUNT(ARRAY) (sizeof(ARRAY) / sizeof(ARRAY[0]))
+#define MACRO_EXPAND(X) X
+#define STRINGIFY_(X) #X
+#define STRINGIFY(X) STRINGIFY_(X)
+#define KILOBYTES(N) (1024ull * (N))
+#define MEGABYTES(N) (1024ull * KILOBYTES(N))
+#define GIGABYTES(N) (1024ull * MEGABYTES(N))
+#define TERABYTES(N) (1024ull * GIGABYTES(N))
+#define square(x) ((x)*(x))
+#define deg_to_rad(deg) (0.01745329251994329577*(deg))
+
+#define pi 3.141592653589793238462643383279502884197169399375105820974944592307816406286
+#define half_pi 1.5707963267948966192313216916397514420985846996875529104874722961539082031
+#define two_pi 6.28318530717958647692528676655900576839433879875021164194988918461563281257
+
+#endif
