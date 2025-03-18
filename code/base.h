@@ -18,6 +18,8 @@ typedef unsigned long long  uint64;
 typedef          float     float32;
 typedef          double    float64;
 
+#define STRUCT(NAME) typedef struct NAME NAME; struct NAME
+#define ENUM(NAME) typedef enum NAME NAME; enum NAME
 #define ARRAY_COUNT(ARRAY) (sizeof(ARRAY) / sizeof(ARRAY[0]))
 #define MACRO_EXPAND(X) X
 #define STRINGIFY_(X) #X
@@ -32,5 +34,16 @@ typedef          double    float64;
 #define pi 3.141592653589793238462643383279502884197169399375105820974944592307816406286
 #define half_pi 1.5707963267948966192313216916397514420985846996875529104874722961539082031
 #define two_pi 6.28318530717958647692528676655900576839433879875021164194988918461563281257
+
+#define print_column(width, fmt, ...) \
+    n += printf("%.*s", max(w - n, 0), spaces); \
+    n += printf(fmt, __VA_ARGS__); \
+    w += width
+#define print_column_optional(cond, width, fmt, ...) \
+    if (cond) { \
+        n += printf("%.*s", max(w - n, 0), spaces); \
+        n += printf(fmt, __VA_ARGS__); \
+    } \
+    w += width
 
 #endif

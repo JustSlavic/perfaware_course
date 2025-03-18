@@ -46,7 +46,7 @@ struct json
 
 struct json_list
 {
-    json values[64];
+    json values[1 << 10];
     uint32 value_count;
     json_list *next;
 };

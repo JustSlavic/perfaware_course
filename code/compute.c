@@ -37,9 +37,10 @@ int main(int32 argc, char **argv)
         fseek(input_file, 0, SEEK_SET);
 
         void *data = malloc(input_size + 1);
-        PROFILE_BLOCK_BANDWIDTH_BEGIN(fread, input_size);
-        fread(data, input_size, 1, input_file);
-        PROFILE_BLOCK_END(fread);
+        PROFILE_BLOCK_BANDWIDTH(fread, input_size)
+        {
+            fread(data, input_size, 1, input_file);
+        }
         *((char*)data + input_size) = 0;
         fclose(input_file);
 
@@ -48,9 +49,7 @@ int main(int32 argc, char **argv)
         json *pairs_ = json__object_lookup(object, "pairs");
         int32 n = json__get_length(pairs_);
 
-        PROFILE_BLOCK_BEGIN(malloc);
         haversine_pair *pairs = malloc(sizeof(haversine_pair) * n);
-        PROFILE_BLOCK_END(malloc);
 
         for (int i = 0; i < n; i++)
         {
@@ -71,15 +70,16 @@ int main(int32 argc, char **argv)
             pairs[i].y1 = y1;
         }
 
-        PROFILE_BLOCK_BEGIN(haversine);
         float64 one_over_n = 1.0 / n;
         float64 average = 0;
-        for (int i = 0; i < n; i++)
+        PROFILE_BLOCK(haversine)
         {
-            float64 d = reference_haversine(pairs[i].x0, pairs[i].y0, pairs[i].x1, pairs[i].y1, 6372.8);
-            average += d * one_over_n;
+            for (int i = 0; i < n; i++)
+            {
+                float64 d = reference_haversine(pairs[i].x0, pairs[i].y0, pairs[i].x1, pairs[i].y1, 6372.8);
+                average += d * one_over_n;
+            }
         }
-        PROFILE_BLOCK_END(haversine);
 
         if (object)
         {

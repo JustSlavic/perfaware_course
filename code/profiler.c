@@ -55,47 +55,46 @@ void profile_end(profile_point p)
     g_profiler_parent_index = p.parent_index;
 }
 
-int clamp_left(int v, int min)
-{
-    if (v < min) return min;
-    return v;
-}
+#define max(a, b) ((a) < (b) ? (b) : (a))
 
 void print_profile_result()
 {
     uint64 time_sum = g_profiler.t1 - g_profiler.t0;
 
-    printf("+---------------------------------------------------------------------------------------------------------------+\n");
+    printf("+------------------------------------------------------------------------------------------------------------------+\n");
     int m = printf("| Time elapsed: %lldus", time_sum / 1000);
-    printf("%.*s|\n", clamp_left(112 - m, 0), spaces);
-    printf("+---------------------------------------------------------------------------------------------------------------+\n");
-    printf("| Label               Hits   Microseconds   Persentage   %% w/ children   Bandwidth             File:Line        |\n");
-    printf("+---------------------------------------------------------------------------------------------------------------+\n");
+    printf("%.*s|\n", max(115 - m, 0), spaces);
+    printf("+------------------------------------------------------------------------------------------------------------------+\n");
+    printf("| Label               Hits      Microseconds   Persentage   %% w/ children   Bandwidth             File:Line        |\n");
+    printf("+------------------------------------------------------------------------------------------------------------------+\n");
     for (int i__ = 1; i__ < ARRAY_COUNT(g_profiler.measurements); i__++) {
         profile_measurement measurement = g_profiler.measurements[i__];
         if (measurement.label != NULL) {
-            int n = printf("| %s", measurement.label);
-            n += printf("%.*s%d", clamp_left(22 - n, 0), spaces, measurement.hit_count);
-            n += printf("%.*s%lldus", clamp_left(29 - n, 0), spaces, measurement.elapsed_exclusive / 1000);
-            n += printf("%.*s%.4f%%", clamp_left(44 - n, 0), spaces, 100.f * measurement.elapsed_exclusive / time_sum);
-            if (measurement.elapsed_exclusive != measurement.elapsed_inclusive)
-                n += printf("%.*s%.4f%%", clamp_left(57 - n, 0), spaces, 100.f * measurement.elapsed_inclusive / time_sum);
-            // n += printf("%.*s%s", clamp_left(57 - n, 0), spaces, measurement.cl.function);
-            if (measurement.byte_count)
-            {
-                float64 seconds = (float64) measurement.elapsed_inclusive / 1000000000.0;
-                float64 bytes_per_second = (float64) measurement.byte_count / seconds;
-                float64 megabytes = (float64) measurement.byte_count / (float64) MEGABYTES(1);
-                float64 gigabytes_per_second = bytes_per_second / (float64) GIGABYTES(1);
+            int n = 0;
+            int w = 0;
 
-                n += printf("%.*s%.3lfmb at %.2lfgb/s", clamp_left(73 - n, 0), spaces, megabytes, gigabytes_per_second);
-            }
-            n += printf("%.*s%s:%d\n", clamp_left(95 - n, 0), spaces, measurement.cl.filename, measurement.cl.line);
+
+
+            print_column(21, "| %s", measurement.label);
+            print_column(10, " %d", measurement.hit_count);
+            print_column(15, " %lld us", measurement.elapsed_exclusive / 1000);
+            print_column(13, " %.4f%%", 100.f * measurement.elapsed_exclusive / time_sum);
+            print_column_optional(measurement.elapsed_exclusive != measurement.elapsed_inclusive,
+                17, " %.4f%%", 100.f * measurement.elapsed_inclusive / time_sum);
+
+            float64 seconds = (float64) measurement.elapsed_inclusive * 1e-9;
+            float64 bytes_per_second = (float64) measurement.byte_count / seconds;
+            float64 megabytes = (float64) measurement.byte_count / (float64) MEGABYTES(1);
+            float64 gigabytes_per_second = bytes_per_second / (float64) GIGABYTES(1);
+
+            print_column_optional(measurement.byte_count,
+                22, "%.3lfmb at %.2lfgb/s", megabytes, gigabytes_per_second);
+            print_column(30, "%s:%d\n", measurement.cl.filename, measurement.cl.line);
         }
         else
         {
             break;
         }
     }
-    printf("+---------------------------------------------------------------------------------------------------------------+\n");
+    printf("+------------------------------------------------------------------------------------------------------------------+\n");
 }

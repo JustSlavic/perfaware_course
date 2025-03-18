@@ -49,6 +49,8 @@ void print_profile_result();
 #define PROFILE_BLOCK_BEGIN(NAME) profile_point NAME##__ = profile_begin(#NAME, CL_HERE, __COUNTER__ + 1)
 #define PROFILE_BLOCK_BANDWIDTH_BEGIN(NAME, BYTECOUNT) profile_point NAME##__ = profile_begin_bandwidth(#NAME, CL_HERE, __COUNTER__ + 1, BYTECOUNT)
 #define PROFILE_BLOCK_END(PROFILE_POINT) profile_end(PROFILE_POINT##__)
+#define PROFILE_BLOCK(NAME) profile_point NAME##__ = profile_begin(#NAME, CL_HERE, __COUNTER__ + 1); for (int i__ = 0; i__ < 1; i__++, profile_end(NAME##__))
+#define PROFILE_BLOCK_BANDWIDTH(NAME, BYTECOUNT) profile_point NAME##__ = profile_begin_bandwidth(#NAME, CL_HERE, __COUNTER__ + 1, BYTECOUNT); for (int i__ = 0; i__ < 1; i__++, profile_end(NAME##__))
 #define PROFILE_FUNCTION_BEGIN() profile_point pfp_##__FUNCTION__##__ = profile_begin(__FUNCTION__, CL_HERE, __COUNTER__ + 1)
 #define PROFILE_FUNCTION_BANDWIDTH_BEGIN(BYTECOUNT) profile_point pfp_##__FUNCTION__##__ = profile_begin_bandwidth(__FUNCTION__, CL_HERE, __COUNTER__ + 1, BYTECOUNT)
 #define PROFILE_FUNCTION_END() profile_end(pfp_##__FUNCTION__##__)

@@ -8,3 +8,4 @@ INCLUDES="-I../code"
 
 gcc $C_FLAGS $WARNINGS $DEFINES $INCLUDES -o generate_data ../code/generate_data.c
 gcc $C_FLAGS $WARNINGS $DEFINES $INCLUDES -o compute ../code/compute.c
+gcc $C_FLAGS $WARNINGS $DEFINES $INCLUDES -o rep_test ../code/repetition_testing.c
