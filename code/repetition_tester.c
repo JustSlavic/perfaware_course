@@ -77,9 +77,13 @@ void print_minimum_measurement()
     print_column(20, "| %.0lf us", time / 1000.0);
     print_column(20, "| %.6lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
     if (page_faults > 0)
+    {
         print_column(20, "| %llu (%.2lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
+    }
     else
+    {
         print_column(20, "%s", "|");
+    }
     print_column(1, "%s", "|");
 }
 
@@ -100,9 +104,13 @@ void print_rest_of_measurements()
         print_column(20, "| %.0lf us", time / 1000.0);
         print_column(20, "| %.2lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
         if (page_faults > 0)
+        {
             print_column(20, "| %llu (%.2lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
+        }
         else
+        {
             print_column(20, "%s", "|");
+        }
         print_column(1, "%s", "|");
     }
     printf("\n");

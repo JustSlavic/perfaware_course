@@ -22,3 +22,7 @@ cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Feasmcall ../code/asm_call.c
 nasm -f win64 -o bpredict.obj ../code/test_branch_predictor.asm
 lib bpredict.obj
 cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Febpredict ../code/test_branch_predictor.c
+
+nasm -f win64 -o rat.obj ../code/rat.asm
+lib rat.obj
+cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Ferat ../code/test_rat.c
