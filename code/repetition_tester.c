@@ -1,7 +1,9 @@
 #include "repetition_tester.h"
 
 #include <string.h>
+#if OS_LINUX
 #include <libproc.h>
+#endif
 #undef bool
 
 
@@ -66,21 +68,18 @@ void print_minimum_measurement()
     int n = 0;
     int w = 0;
 
+    uint64 time = g_tester.minimum.value[RepTestMeasurement_Time];
+    uint64 bytes = g_tester.minimum.value[RepTestMeasurement_Bytes];
+    uint64 page_faults = g_tester.minimum.value[RepTestMeasurement_PageFaults];
+
     print_column(20, "| %s", g_tester.label);
     print_column(6, "| %s", "Min");
-    uint64 time = g_tester.minimum.value[RepTestMeasurement_Time];
     print_column(20, "| %.0lf us", time / 1000.0);
-    uint64 bytes = g_tester.minimum.value[RepTestMeasurement_Bytes];
-    print_column(20, "| %.2lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
-    uint64 page_faults = g_tester.minimum.value[RepTestMeasurement_PageFaults];
+    print_column(20, "| %.6lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
     if (page_faults > 0)
-    {
         print_column(20, "| %llu (%.2lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
-    }
     else
-    {
         print_column(20, "%s", "|");
-    }
     print_column(1, "%s", "|");
 }
 
@@ -93,22 +92,17 @@ void print_rest_of_measurements()
 
     {
         print_column(20, "%s", "|");
-        print_column(6, "| %s", " Max");
+        print_column(6, "| %s", "Max");
 
         uint64 time = g_tester.maximum.value[RepTestMeasurement_Time];
-        print_column(20, "| %.0lf us", time / 1000.0);
         uint64 bytes = g_tester.maximum.value[RepTestMeasurement_Bytes];
-        print_column(20, "| %.2lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
         uint64 page_faults = g_tester.maximum.value[RepTestMeasurement_PageFaults];
+        print_column(20, "| %.0lf us", time / 1000.0);
+        print_column(20, "| %.2lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
         if (page_faults > 0)
-        {
             print_column(20, "| %llu (%.2lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
-        }
         else
-        {
             print_column(20, "%s", "|");
-        }
-
         print_column(1, "%s", "|");
     }
     printf("\n");
@@ -124,7 +118,8 @@ void print_rest_of_measurements()
     // printf("\n");
 }
 
-uint32 get_pagefaults_count()
+#if OS_LINUX
+uint64 get_pagefaults_count()
 {
     struct proc_taskinfo info;
     int pid = getpid();
@@ -139,8 +134,32 @@ uint32 get_pagefaults_count()
     }
     return 0;
 }
+#endif
 
-void reptest_count_bytes(uint32 bytes)
+#if OS_WINDOWS
+#include <psapi.h>
+uint64 get_pagefaults_count()
+{
+    static HANDLE ProcessHandle;
+    if(!ProcessHandle)
+    {
+        ProcessHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
+    }
+
+    uint64 Result = 0;
+    if (ProcessHandle)
+    {
+        PROCESS_MEMORY_COUNTERS_EX MemoryCounters = {};
+        MemoryCounters.cb = sizeof(MemoryCounters);
+        GetProcessMemoryInfo(ProcessHandle, (PROCESS_MEMORY_COUNTERS *)&MemoryCounters, sizeof(MemoryCounters));
+
+        Result = MemoryCounters.PageFaultCount;
+    }
+    return Result;
+}
+#endif
+
+void reptest_count_bytes(uint64 bytes)
 {
     g_tester.current.value[RepTestMeasurement_Bytes] = bytes;
 }
@@ -205,10 +224,9 @@ bool is_testing(float64 seconds)
         {
             g_tester.minimum = g_tester.current;
             g_tester.start_time = get_time();
+            print_minimum_measurement();
+            fflush(stdout);
         }
-        print_minimum_measurement();
-        // print_min_max();
-        fflush(stdout);
 
         if (seconds_since_start >= seconds)
         {

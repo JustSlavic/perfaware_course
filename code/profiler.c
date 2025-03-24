@@ -55,14 +55,17 @@ void profile_end(profile_point p)
     g_profiler_parent_index = p.parent_index;
 }
 
+#ifndef max
 #define max(a, b) ((a) < (b) ? (b) : (a))
+#endif
 
 void print_profile_result()
 {
+    uint64 timer_freq = get_frequency();
     uint64 time_sum = g_profiler.t1 - g_profiler.t0;
 
     printf("+------------------------------------------------------------------------------------------------------------------+\n");
-    int m = printf("| Time elapsed: %lldus", time_sum / 1000);
+    int m = printf("| Time elapsed: %.2lfus", 1e6 * time_sum / timer_freq);
     printf("%.*s|\n", max(115 - m, 0), spaces);
     printf("+------------------------------------------------------------------------------------------------------------------+\n");
     printf("| Label               Hits      Microseconds   Persentage   %% w/ children   Bandwidth             File:Line        |\n");
@@ -73,16 +76,14 @@ void print_profile_result()
             int n = 0;
             int w = 0;
 
-
-
             print_column(21, "| %s", measurement.label);
             print_column(10, " %d", measurement.hit_count);
-            print_column(15, " %lld us", measurement.elapsed_exclusive / 1000);
+            print_column(15, " %.2lf us", 1e6 * measurement.elapsed_exclusive / timer_freq);
             print_column(13, " %.4f%%", 100.f * measurement.elapsed_exclusive / time_sum);
             print_column_optional(measurement.elapsed_exclusive != measurement.elapsed_inclusive,
                 17, " %.4f%%", 100.f * measurement.elapsed_inclusive / time_sum);
 
-            float64 seconds = (float64) measurement.elapsed_inclusive * 1e-9;
+            float64 seconds = (float64) measurement.elapsed_inclusive / timer_freq;
             float64 bytes_per_second = (float64) measurement.byte_count / seconds;
             float64 megabytes = (float64) measurement.byte_count / (float64) MEGABYTES(1);
             float64 gigabytes_per_second = bytes_per_second / (float64) GIGABYTES(1);

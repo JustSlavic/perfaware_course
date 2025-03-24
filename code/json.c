@@ -362,7 +362,7 @@ void free_json_list(json_list *l)
 
     while (curr)
     {
-        for (int i = 0; i < curr->value_count; i++)
+        for (uint32 i = 0; i < curr->value_count; i++)
         {
             if (curr->values[i].tag == JSON_LIST) free_json_list(curr->values[i].l);
             if (curr->values[i].tag == JSON_OBJECT) free_json_object(curr->values[i].o);
@@ -441,7 +441,7 @@ json *json__list_lookup(json *v, int32 n)
         json_list *l = v->l;
         for (int i = 0; i < (n / ARRAY_COUNT(((json_list *)0)->values)); i++)
             l = l->next;
-        int32 index = n % ARRAY_COUNT(((json_list *)0)->values);
+        uint32 index = n % ARRAY_COUNT(((json_list *)0)->values);
         if (index < l->value_count)
         {
             result = &l->values[index];

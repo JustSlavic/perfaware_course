@@ -18,6 +18,10 @@ typedef unsigned long long  uint64;
 typedef          float     float32;
 typedef          double    float64;
 
+#if OS_WINDOWS
+#define UINT64_MAX 0xffffffffffffffff
+#endif
+
 #define STRUCT(NAME) typedef struct NAME NAME; struct NAME
 #define ENUM(NAME) typedef enum NAME NAME; enum NAME
 #define ARRAY_COUNT(ARRAY) (sizeof(ARRAY) / sizeof(ARRAY[0]))

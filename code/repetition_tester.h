@@ -2,6 +2,7 @@
 #define REPETITION_TESTER_H
 
 #include "base.h"
+#undef max
 #define max(a, b) ((a) < (b) ? (b) : (a))
 
 enum
@@ -44,7 +45,7 @@ STRUCT(repetition_tester)
 extern repetition_tester g_tester;
 
 bool is_testing(float64 seconds);
-void reptest_count_bytes(uint32 bytes);
+void reptest_count_bytes(uint64 bytes);
 void reptest_begin_time();
 void reptest_end_time();
 
