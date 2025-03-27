@@ -26,6 +26,8 @@ char const *value_to_cstring(int32 value)
 
 void print_separator()
 {
+    if (!g_tester.print_results) return;
+    
     printf("+-------------------+-----");
     for (int i = 0; i < RepTestMeasurement_Count - 1; i++)
     {
@@ -46,6 +48,8 @@ void print_inter_separator()
 
 void print_header()
 {
+    if (!g_tester.print_results) return;
+
     int n = 0;
     int w = 0;
 
@@ -63,6 +67,8 @@ void print_header()
 
 void print_minimum_measurement()
 {
+    if (!g_tester.print_results) return;
+
     printf("\r");
 
     int n = 0;
@@ -89,6 +95,8 @@ void print_minimum_measurement()
 
 void print_rest_of_measurements()
 {
+    if (!g_tester.print_results) return;
+
     printf("\n");
 
     int n = 0;

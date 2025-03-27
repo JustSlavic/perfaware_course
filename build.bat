@@ -26,3 +26,15 @@ cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Febpredict ../code/test_branch_predi
 nasm -f win64 -o rat.obj ../code/rat.asm
 lib rat.obj
 cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Ferat ../code/test_rat.c
+
+nasm -f win64 -o exeports.obj ../code/test_execution_ports.asm
+lib exeports.obj
+cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Feeports ../code/test_execution_ports.c
+
+nasm -f win64 -o simdload.obj ../code/simd_load.asm
+lib simdload.obj
+cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fesimd_load ../code/test_simd_load.c
+
+nasm -f win64 -o cachesize.obj ../code/cache_size.asm
+lib cachesize.obj
+cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fecache_size ../code/test_cache_size.c

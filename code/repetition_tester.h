@@ -32,6 +32,7 @@ STRUCT(repetition_tester)
 {
     repetition_tester_state state;
     char const *label;
+    bool print_results;
 
     uint64 start_time;
     uint32 hit_count;
