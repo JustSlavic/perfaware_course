@@ -28,10 +28,20 @@ ENUM(repetition_tester_state)
     RepTestState_Error,
 };
 
+STRUCT(table_printer)
+{
+    char const *labels[32];
+    int widths[32];
+    int count;
+    int index;
+};
+
 STRUCT(repetition_tester)
 {
     repetition_tester_state state;
     char const *label;
+
+    table_printer printer;
     bool print_results;
 
     uint64 start_time;
@@ -49,9 +59,5 @@ bool is_testing(float64 seconds);
 void reptest_count_bytes(uint64 bytes);
 void reptest_begin_time();
 void reptest_end_time();
-
-void print_separator();
-void print_header();
-void print_min_max();
 
 #endif

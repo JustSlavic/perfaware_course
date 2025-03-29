@@ -1,6 +1,8 @@
 #include "repetition_tester.h"
 
 #include <string.h>
+#include <stdarg.h>
+
 #if OS_LINUX
 #include <libproc.h>
 #endif
@@ -24,133 +26,124 @@ char const *value_to_cstring(int32 value)
     return "<error>";
 }
 
-void print_separator()
+void table_printer__push_column(table_printer *table, char const *label, int width)
 {
-    if (!g_tester.print_results) return;
-    
-    printf("+-------------------+-----");
-    for (int i = 0; i < RepTestMeasurement_Count - 1; i++)
-    {
-        printf("+-------------------");
-    }
-    printf("+\n");
+    table->labels[table->count] = label;
+    table->widths[table->count] = width;
+    table->count += 1;
 }
 
-void print_inter_separator()
+void table_printer__start_row(table_printer *table)
 {
-    printf("+                   +-----");
-    for (int i = 0; i < RepTestMeasurement_Count - 1; i++)
-    {
-        printf("+-------------------");
-    }
-    printf("+\n");
+    table->index = 0;
 }
 
-void print_header()
+void table_printer__finish_row(table_printer *table)
+{
+    printf("|\n");
+}
+
+void table_printer__print_column(table_printer *table, char const *fmt, ...)
+{
+    int m = 0;
+    m += printf("| ");
+    va_list args;
+    va_start(args, fmt);
+    m += vprintf(fmt, args);
+    va_end(args);
+    printf("%.*s", max(table->widths[table->index] - m + 3, 0), spaces);
+    table->index += 1;
+}
+
+void table_printer__print_separator(table_printer *table)
 {
     if (!g_tester.print_results) return;
 
-    int n = 0;
-    int w = 0;
-
-    print_separator();
-    print_column(20, "| %s", "Label");
-    print_column(6, "| %s", "");
-
-    for (int value = RepTestMeasurement_None + 1; value < RepTestMeasurement_Count; value++)
+    // printf("+-|||-+")
+    for (int i = 0; i < g_tester.printer.count; i++)
     {
-        print_column(20, "| %s", value_to_cstring(value));
+        printf("+-");
+        printf("%.*s", g_tester.printer.widths[i], dashes);
+        printf("-");
     }
-    print_column(1, "%s\n", "|");
-    print_separator();
+    printf("+\n");
+
+    // printf("+-------------------+-----");
+    // for (int i = 0; i < RepTestMeasurement_Count - 1; i++)
+    // {
+    //     printf("+-------------------");
+    // }
+    // printf("+\n");
+}
+
+void table_printer__print_header(table_printer *table)
+{
+    if (!g_tester.print_results) return;
+    table_printer *printer = &g_tester.printer;
+
+    table_printer__print_separator(printer);
+    table_printer__start_row(printer);
+    for (int i = 0; i < printer->count; i++)
+    {
+        table_printer__print_column(printer, "%s", g_tester.printer.labels[i]);
+    }
+    table_printer__finish_row(printer);
+    table_printer__print_separator(printer);
 }
 
 void print_minimum_measurement()
 {
     if (!g_tester.print_results) return;
+    table_printer *printer = &g_tester.printer;
 
     printf("\r");
-
-    int n = 0;
-    int w = 0;
 
     uint64 time = g_tester.minimum.value[RepTestMeasurement_Time];
     uint64 bytes = g_tester.minimum.value[RepTestMeasurement_Bytes];
     uint64 page_faults = g_tester.minimum.value[RepTestMeasurement_PageFaults];
 
-    print_column(20, "| %s", g_tester.label);
-    print_column(6, "| %s", "Min");
-    print_column(20, "| %.0lf us", time / 1000.0);
-    print_column(20, "| %.6lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
-    if (page_faults > 0)
-    {
-        print_column(20, "| %llu (%.2lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
-    }
-    else
-    {
-        print_column(20, "%s", "|");
-    }
-    print_column(1, "%s", "|");
+    table_printer__start_row(printer);
+    table_printer__print_column(printer, "%s", g_tester.label);
+    table_printer__print_column(printer, "Min");
+    table_printer__print_column(printer, "%.0lf us", time * 1e-3);
+    table_printer__print_column(printer, "%.2lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
+    if (page_faults > 0) table_printer__print_column(printer, "%llu (%.2lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
+    else                 table_printer__print_column(printer, "");
 }
 
 void print_rest_of_measurements()
 {
     if (!g_tester.print_results) return;
+    table_printer *printer = &g_tester.printer;
 
-    printf("\n");
-
-    int n = 0;
-    int w = 0;
+    table_printer__finish_row(printer);
 
     {
-        print_column(20, "%s", "|");
-        print_column(6, "| %s", "Max");
-
         uint64 time = g_tester.maximum.value[RepTestMeasurement_Time];
         uint64 bytes = g_tester.maximum.value[RepTestMeasurement_Bytes];
         uint64 page_faults = g_tester.maximum.value[RepTestMeasurement_PageFaults];
-        print_column(20, "| %.0lf us", time / 1000.0);
-        print_column(20, "| %.2lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
-        if (page_faults > 0)
-        {
-            print_column(20, "| %llu (%.2lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
-        }
-        else
-        {
-            print_column(20, "%s", "|");
-        }
-        print_column(1, "%s", "|");
-    }
-    printf("\n");
-    // {
-    //     print_column(20, "%s", "|");
-    //     print_column(6, "| %s", "Avg");
-    //     for (int value = RepTestMeasurement_None + 1; value < RepTestMeasurement_Count; value++)
-    //     {
-    //         print_column(20, "| %.1lf", (float64) g_tester.total.value[value] / (float64) g_tester.hit_count);
-    //     }
-    //     print_column(1, "%s", "|");
-    // }
-    // printf("\n");
-}
 
-#if OS_LINUX
-uint64 get_pagefaults_count()
-{
-    struct proc_taskinfo info;
-    int pid = getpid();
-
-    if (proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &info, sizeof(info)) > 0) {
-        // printf("Resident Memory: %llu KB\n", info.pti_resident_size / 1024);
-        // printf("Virtual Memory: %llu KB\n", info.pti_virtual_size / 1024);
-        // printf("Page Faults: %d\n", info.pti_faults);
-        return info.pti_faults;
-    } else {
-        printf("Failed to get proc info\n");
+        table_printer__start_row(printer);
+        table_printer__print_column(printer, "");
+        table_printer__print_column(printer, "Max");
+        table_printer__print_column(printer, "%.0lf us", time * 1e-3);
+        table_printer__print_column(printer, "%.2lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
+        if (page_faults > 0) table_printer__print_column(printer, "%llu (%.2lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
+        else                 table_printer__print_column(printer, "");
+        table_printer__finish_row(printer);
     }
-    return 0;
+    {
+        table_printer__start_row(printer);
+        uint64 total_time = g_tester.total.value[RepTestMeasurement_Time];
+        float64 avg_time = (float64) total_time / (float64) g_tester.hit_count;
+        table_printer__print_column(printer, "");
+        table_printer__print_column(printer, "Avg");
+        table_printer__print_column(printer, "%.0lf us", avg_time * 1e-3);
+        table_printer__print_column(printer, "");
+        table_printer__print_column(printer, "");
+        table_printer__finish_row(printer);
+    }
 }
-#endif
 
 #if OS_WINDOWS
 #include <psapi.h>
@@ -196,15 +189,21 @@ bool is_testing(float64 seconds)
 {
     if (g_tester.state == RepTestState_Uninitialized)
     {
-        print_header();
+        table_printer__push_column(&g_tester.printer, "Label", 17);
+        table_printer__push_column(&g_tester.printer, "", 3);
+        table_printer__push_column(&g_tester.printer, "Time", 17);
+        table_printer__push_column(&g_tester.printer, "Bytes", 17);
+        table_printer__push_column(&g_tester.printer, "Page faults", 20);
+
+        table_printer__print_header(&g_tester.printer);
 
         g_tester.state = RepTestState_Testing;
         g_tester.start_time = get_time();
         g_tester.hit_count = 0;
 
         memset(&g_tester.current, 0, sizeof(g_tester.current));
-        memset(&g_tester.minimum, 0, sizeof(g_tester.total));
-        memset(&g_tester.maximum, 0, sizeof(g_tester.total));
+        memset(&g_tester.minimum, 0, sizeof(g_tester.minimum));
+        memset(&g_tester.maximum, 0, sizeof(g_tester.maximum));
         memset(&g_tester.total, 0, sizeof(g_tester.total));
 
         g_tester.minimum.value[RepTestMeasurement_Time] = UINT64_MAX;
@@ -248,11 +247,12 @@ bool is_testing(float64 seconds)
         {
             g_tester.state = RepTestState_Completed;
             print_rest_of_measurements();
-            print_separator();
+            table_printer__print_separator(&g_tester.printer);
         }
 
         memset(&g_tester.current, 0, sizeof(g_tester.current));
     }
-    if (g_tester.state == RepTestState_Testing) g_tester.hit_count += 1;
+    if (g_tester.state == RepTestState_Testing)
+        g_tester.hit_count += 1;
     return (g_tester.state == RepTestState_Testing);
 }

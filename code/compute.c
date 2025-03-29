@@ -7,8 +7,10 @@
 #include "haversine.h"
 #include "profiler.h"
 
+#if OS_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#endif
 
 
 uint32 hash_djb2(char const *cstr)
