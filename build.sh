@@ -26,9 +26,7 @@ function compile_test_arm64_mac() {
 # gcc $C_FLAGS $WARNINGS $DEFINES $INCLUDES -o build/rep_test ../code/repetition_testing.c
 
 # gcc $C_FLAGS $WARNINGS $DEFINES $INCLUDES -o build/01_test_fread code/01_test_fread.c
-# echo "Done [build/01_test_fread]"
 # gcc $C_FLAGS $WARNINGS $DEFINES $INCLUDES -o build/02_test_pagefault_count code/02_test_pagefault_count.c
-# echo "Done [build/02_test_pagefault_count]"
 
 # ld abc.o -o abc -e _start -arch arm64  -l System -syslibroot `xcrun -sdk macosx --show-sdk-path`
 
@@ -36,3 +34,4 @@ compile_test_arm64_mac "03_test_cpu_frontend"
 compile_test_arm64_mac "04_test_decoding_bottleneck"
 compile_test_arm64_mac "05_test_branch_predictor"
 compile_test_arm64_mac "06_test_rat"
+compile_test_arm64_mac "07_test_execution_ports"
