@@ -47,7 +47,7 @@ callback_t callbacks[] =
 void reptest_do(int index, uint64 count, void *data)
 {
     g_tester.label = labels[index];
-    while (is_testing(1))
+    while (is_testing(10))
     {
         reptest_begin_time();
         callbacks[index](count, data);
@@ -61,7 +61,7 @@ int main()
     uint64 count = GIGABYTES(1);
     uint8 *data = (uint8 *) allocate_pages(count);
     g_tester.print_results = true;
-    // while (true)
+    while (true)
     {
         for (int i = 0; i < ARRAY_COUNT(callbacks); i++)
         {

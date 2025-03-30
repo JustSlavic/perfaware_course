@@ -11,21 +11,6 @@
 
 repetition_tester g_tester = {};
 
-char const *value_to_cstring(int32 value)
-{
-    switch (value)
-    {
-    case RepTestMeasurement_Time: return "Time";
-    case RepTestMeasurement_Bytes: return "Bytes";
-    case RepTestMeasurement_PageFaults: return "Page Faults";
-
-    case RepTestMeasurement_None:
-    default:
-        return "<error>";
-    }
-    return "<error>";
-}
-
 void table_printer__push_column(table_printer *table, char const *label, int width)
 {
     table->labels[table->count] = label;
