@@ -22,7 +22,7 @@ void dec_buffer_asm(uint64 count);
 void reptest_write_buffer(uint64 size)
 {
     uint8 *data = (uint8 *) allocate_pages(size);
-    while (is_testing(15))
+    while (is_testing(60))
     {
         g_tester.label = "write_buffer";
         reptest_begin_time();
@@ -39,7 +39,7 @@ void reptest_write_buffer(uint64 size)
 void reptest_write_buffer_asm(uint64 size)
 {
     uint8 *data = (uint8 *) allocate_pages(size);
-    while (is_testing(15))
+    while (is_testing(60))
     {
         g_tester.label = "write_buffer_asm";
         reptest_begin_time();
@@ -52,7 +52,7 @@ void reptest_write_buffer_asm(uint64 size)
 
 void reptest_noop_buffer_asm(uint64 size)
 {
-    while (is_testing(15))
+    while (is_testing(60))
     {
         g_tester.label = "noop_buffer_asm";
         reptest_begin_time();
@@ -64,7 +64,7 @@ void reptest_noop_buffer_asm(uint64 size)
 
 void reptest_cmp_buffer_asm(uint64 size)
 {
-    while (is_testing(15))
+    while (is_testing(60))
     {
         g_tester.label = "cmp_buffer_asm";
         reptest_begin_time();
@@ -76,7 +76,7 @@ void reptest_cmp_buffer_asm(uint64 size)
 
 void reptest_dec_buffer_asm(uint64 size)
 {
-    while (is_testing(15))
+    while (is_testing(60))
     {
         g_tester.label = "dec_buffer_asm";
         reptest_begin_time();
@@ -88,8 +88,9 @@ void reptest_dec_buffer_asm(uint64 size)
 
 int main()
 {
-    uint64 size = MEGABYTES(100);
-    while (true)
+    g_tester.print_results = true;
+    uint64 size = GIGABYTES(1);
+    // while (true)
     {
         reptest_write_buffer(size);
         reptest_write_buffer_asm(size);

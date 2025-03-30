@@ -34,7 +34,6 @@ _cmp_buffer_asm: ; x0 - count, x1 - data
     ret
 
 _dec_buffer_asm: ; x0 - count, x1 - data
-    mov     x2, xzr
 .loop3:
     sub     x0, x0, #1
     cmp     x0, xzr

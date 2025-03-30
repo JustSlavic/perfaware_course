@@ -48,9 +48,58 @@
         mov inc cmp(jb)
 
     We have clear dependency chain on 'inc'.
+    Let's start removing work from the loop to see how it affects performance.
+
+    First we remove 'mov' with nop:
+
+            inc
+           / | \
+        nop inc cmp(jb)
+           / | \
+        nop inc cmp(jb)
+
+    Then we remove nop completely:
+
+            inc
+             | \
+            inc cmp(jb)
+             | \
+            inc cmp(jb)
+
+    And finally we replace 'inc' and 'comp' with only one 'dec', which operates
+    directly on the 'rcx', which is the count.
+
+            dec
+             | \
+            dec jnz
+             | \
+            dec jnz
 
     What we get from this test:
     x86-64
++-------------------+-----+-------------------+-------------------+----------------------+
+| Label             |     | Time              | Bytes             | Page faults          |
++-------------------+-----+-------------------+-------------------+----------------------+
+| write_buffer_c    | Min | 625877 us         | 1.597759 gb/s     |                      |
+|                   | Max | 836204 us         | 1.195881 gb/s     | 262656 (4.0880 kB/f) |
+|                   | Avg | 646693 us         |                   |                      |
++-------------------+-----+-------------------+-------------------+----------------------+
+| write_buffer_asm  | Min | 630614 us         | 1.585755 gb/s     |                      |
+|                   | Max | 724203 us         | 1.380829 gb/s     |                      |
+|                   | Avg | 642686 us         |                   |                      |
++-------------------+-----+-------------------+-------------------+----------------------+
+| nop_buffer_asm    | Min | 604697 us         | 1.653722 gb/s     |                      |
+|                   | Max | 731382 us         | 1.367274 gb/s     |                      |
+|                   | Avg | 612419 us         |                   |                      |
++-------------------+-----+-------------------+-------------------+----------------------+
+| cmp_buffer_asm    | Min | 565108 us         | 1.769573 gb/s     |                      |
+|                   | Max | 574685 us         | 1.740085 gb/s     |                      |
+|                   | Avg | 567570 us         |                   |                      |
++-------------------+-----+-------------------+-------------------+----------------------+
+| dec_buffer_asm    | Min | 564630 us         | 1.771070 gb/s     |                      |
+|                   | Max | 683419 us         | 1.463231 gb/s     |                      |
+|                   | Avg | 570073 us         |                   |                      |
++-------------------+-----+-------------------+-------------------+----------------------+
 
     Arm64
 +-------------------+-----+-------------------+-------------------+----------------------+
@@ -77,8 +126,8 @@
 |                   | Avg | 338499 us         |                   |                      |
 +-------------------+-----+-------------------+-------------------+----------------------+
 
-    The results show that in x86-64 'mov' creates a bit of the slowdown,
-    but the 4-byte nop also creates a little bit of slowdown, probably because
+    The results show that in x86-64 'mov' creates a bit of the slowdown, why?
+    The 4-byte nop also creates a little bit of slowdown, probably because
     of instruction decoding???
 
     This is not present on the M1 chip, probably because there's no bottleneck
