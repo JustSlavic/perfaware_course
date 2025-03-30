@@ -107,11 +107,15 @@ void fill_bytes(int32 jump_strategy, uint64 size, uint8 *data)
                 uint32 chunk_size = 0xffffffff;
                 while (size >= chunk_size)
                 {
-                    get_os_random_buffer(chunk_size, data + n*chunk_size);
-                    size -= chunk_size;
+                    uint64 bytes_filled = get_os_random_buffer(chunk_size, data + n*chunk_size);
+                    size -= bytes_filled;
                 }
                 if (size > 0)
-                    get_os_random_buffer((uint32) size, data);
+                {
+                    uint64 bytes_filled = get_os_random_buffer((uint32) size, data);
+                    size -= bytes_filled;
+                    if (size != 0) printf("ERROR!!! buffer is not filled completely!\n");
+                }
             }
 
             break;
@@ -129,7 +133,10 @@ char const *labels[] =
     "JumpRandomOS",
 };
 
+#if OS_WINDOWS
 #pragma optimize("", off)
+#endif
+
 void reptest_branch_predictor(uint64 size, int jump_strategy)
 {
     uint8 *data = (uint8 *) allocate_pages(size);

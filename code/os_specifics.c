@@ -22,9 +22,10 @@ void free_pages(void *memory, uint64 size)
 {
     VirtualFree(memory, 0, MEM_RELEASE);
 }
-void get_os_random_buffer(uint32 size, uint8 *buffer)
+uint64 get_os_random_buffer(uint32 size, uint8 *buffer)
 {
-    BCryptGenRandom(0, buffer, size, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+    NTSTATUS result = BCryptGenRandom(0, buffer, size, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+    return (result == STATUS_SUCCESS) ? size : 0;
 }
 #endif
 
@@ -33,6 +34,7 @@ void get_os_random_buffer(uint32 size, uint8 *buffer)
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <libproc.h>
 uint64 get_filesize(char const *filename)
 {
@@ -49,6 +51,13 @@ return result;
 void free_pages(void *memory, uint64 size)
 {
     munmap(memory, size);
+}
+uint64 get_os_random_buffer(uint32 size, uint8 *buffer)
+{
+    int random_device = open("/dev/urandom", O_RDONLY);
+    int bytes_read = read(random_device, buffer, size);
+    close(random_device);
+    return bytes_read;
 }
 #endif
 
