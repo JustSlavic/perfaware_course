@@ -1,11 +1,11 @@
-.global _test_rat_add_asm
-.global _test_rat_mov_add_asm
+.global _rat_add_asm
+.global _rat_mov_add_asm
 
 .text
 .align 2
 
 
-_test_rat_add_asm: ; x0 - count
+_rat_add_asm: ; x0 - count
 .loop0:
     add     x1, x1, #1
     add     x1, x1, #1
@@ -13,7 +13,7 @@ _test_rat_add_asm: ; x0 - count
     b.ge    .loop0
     ret
 
-_test_rat_mov_add_asm: ; x0 - count
+_rat_mov_add_asm: ; x0 - count
 .loop1:
     mov     x2, x1
     add     x2, x2, #1

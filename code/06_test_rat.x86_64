@@ -1,0 +1,22 @@
+global rat_add_asm
+global rat_mov_add_asm
+
+section .text
+
+rat_add_asm:
+.loop:
+    add     rax, 1
+    add     rax, 1
+    dec     rcx
+    jnz     .loop
+    ret
+
+rat_mov_add_asm:
+.loop:
+    mov     rax, rcx
+    add     rax, 1
+    mov     rax, rcx
+    add     rax, 1
+    dec     rcx
+    jnz     .loop
+    ret

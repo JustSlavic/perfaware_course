@@ -56,8 +56,8 @@
 
 typedef void (*callback_t)(uint64);
 
-void test_rat_add_asm(uint64 count);
-void test_rat_mov_add_asm(uint64 count);
+void rat_add_asm(uint64 count);
+void rat_mov_add_asm(uint64 count);
 
 char const *labels[] =
 {
@@ -67,8 +67,8 @@ char const *labels[] =
 
 callback_t callbacks[] =
 {
-    test_rat_add_asm,
-    test_rat_mov_add_asm,
+    rat_add_asm,
+    rat_mov_add_asm,
 };
 
 void reptest_do(int index, uint64 count)
