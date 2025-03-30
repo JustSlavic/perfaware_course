@@ -25,6 +25,9 @@ cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe03_test_cpu_frontend ../co
 nasm -f win64 -o 04_asm.obj ../code/04_test_decoding_bottleneck.x86_64
 cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe04_test_decoding_bottleneck ../code/04_test_decoding_bottleneck.c 04_asm.obj
 
+nasm -f win64 -o 05_asm.obj ../code/05_test_branch_predictor.x86_64
+cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe05_test_branch_predictor ../code/05_test_branch_predictor.c 05_asm.obj
+
 rem nasm -f win64 -o bpredict.obj ../code/test_branch_predictor.asm
 rem lib bpredict.obj
 rem cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Febpredict ../code/test_branch_predictor.c

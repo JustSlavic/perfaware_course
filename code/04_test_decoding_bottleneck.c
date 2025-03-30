@@ -93,24 +93,23 @@ callback_t callbacks[] =
     nop_8x4byte_asm,
 };
 #else
-// void nop_1x3byte_asm(uint64 count);
-// void nop_3x1byte_asm(uint64 count);
-// void nop_9x1byte_asm(uint64 count);
+void nop_1x3byte_asm(uint64 count);
+void nop_3x1byte_asm(uint64 count);
+void nop_9x1byte_asm(uint64 count);
 
-// char const *labels[] =
-// {
-//     STRINGIFY(nop_1x3_asm)
-//     "nop_3x1_asm",
-//     "nop_1x3_asm",
-//     "nop_1x9_asm",
-// };
+char const *labels[] =
+{
+    "nop_1x3byte_asm",
+    "nop_3x1byte_asm",
+    "nop_9x1byte_asm",
+};
 
-// callback_t callbacks[] =
-// {
-//     nop_3x1_asm,
-//     nop_1x3_asm,
-//     nop_1x9_asm,
-// };
+callback_t callbacks[] =
+{
+    nop_1x3byte_asm,
+    nop_3x1byte_asm,
+    nop_9x1byte_asm,
+};
 #endif
 
 void reptest_do(int index, uint64 count)
