@@ -24,8 +24,8 @@ void free_pages(void *memory, uint64 size)
 }
 uint64 get_os_random_buffer(uint32 size, uint8 *buffer)
 {
-    NTSTATUS result = BCryptGenRandom(0, buffer, size, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-    return (result == STATUS_SUCCESS) ? size : 0;
+    BCryptGenRandom(0, buffer, size, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+    return size;
 }
 #endif
 
