@@ -1,10 +1,10 @@
-global nop_3x1_asm
-global nop_1x3_asm
-global nop_1x9_asm
+global nop_1x3byte_asm
+global nop_3x1byte_asm
+global nop_9x1byte_asm
 
 section .text
 
-nop_3x1_asm:
+nop_1x3byte_asm:
     xor     rax, rax
 .loop:
     db      0x0f, 0x1f, 0x00
@@ -13,7 +13,7 @@ nop_3x1_asm:
     jb      .loop
     ret
 
-nop_1x3_asm:
+nop_3x1byte_asm:
     xor     rax, rax
 .loop:
     nop
@@ -24,7 +24,7 @@ nop_1x3_asm:
     jb      .loop
     ret
 
-nop_1x9_asm:
+nop_9x1byte_asm:
     xor     rax, rax
 .loop:
     nop

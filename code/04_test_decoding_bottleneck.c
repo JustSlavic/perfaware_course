@@ -38,27 +38,80 @@
     We see that in x86-64 the replacement of 1 3-byte nop by 3 1-byte nops
     already has small performance impact.
     Doing 9 1-byte nops does stall CPU tremendously.
-*/
 
-void nop_3x1_asm(uint64 count);
-void nop_1x3_asm(uint64 count);
-void nop_1x9_asm(uint64 count);
+    Arm64
++-------------------+-----+-------------------+-------------------+----------------------+
+| Label             |     | Time              | Bytes             | Page faults          |
++-------------------+-----+-------------------+-------------------+----------------------+
+| nop_1x4byte_asm   | Min | 336874 us         | 2.968469 gb/s     |                      |
+|                   | Max | 367199 us         | 2.723319 gb/s     |                      |
+|                   | Avg | 338378 us         |                   |                      |
++-------------------+-----+-------------------+-------------------+----------------------+
+| nop_2x4byte_asm   | Min | 337024 us         | 2.967148 gb/s     |                      |
+|                   | Max | 342401 us         | 2.920552 gb/s     |                      |
+|                   | Avg | 337290 us         |                   |                      |
++-------------------+-----+-------------------+-------------------+----------------------+
+| nop_4x4byte_asm   | Min | 337017 us         | 2.967209 gb/s     |                      |
+|                   | Max | 339289 us         | 2.947340 gb/s     |                      |
+|                   | Avg | 337253 us         |                   |                      |
++-------------------+-----+-------------------+-------------------+----------------------+
+| nop_8x4byte_asm   | Min | 463356 us         | 2.158168 gb/s     |                      |
+|                   | Max | 470248 us         | 2.126537 gb/s     |                      |
+|                   | Avg | 463766 us         |                   |                      |
++-------------------+-----+-------------------+-------------------+----------------------+
+
+    On the M1 chip however, we don't see slowdown until we do 8 4-byte nops,
+    which means that this chip have so much easier job decoding instructions.
+    And we hit slowdown only when we have a little more than 32 bytes of
+    instructions per cycle to decode. Which can signal that the M1 chip have
+    decoding "window" 32 bytes (8 instructions).
+*/
 
 typedef void (*callback_t)(uint64);
 
+#if OS_MAC
+// Arm is fixed-size, so we don't have variable-length nops
+// let's try to test it with 1, 2, 4, and 8 4-byte nops
+void nop_1x4byte_asm(uint64 count);
+void nop_2x4byte_asm(uint64 count);
+void nop_4x4byte_asm(uint64 count);
+void nop_8x4byte_asm(uint64 count);
+
 char const *labels[] =
 {
-    "nop_3x1_asm",
-    "nop_1x3_asm",
-    "nop_1x9_asm",
+    "nop_1x4byte_asm",
+    "nop_2x4byte_asm",
+    "nop_4x4byte_asm",
+    "nop_8x4byte_asm",
 };
 
 callback_t callbacks[] =
 {
-    nop_3x1_asm,
-    nop_1x3_asm,
-    nop_1x9_asm,
+    nop_1x4byte_asm,
+    nop_2x4byte_asm,
+    nop_4x4byte_asm,
+    nop_8x4byte_asm,
 };
+#else
+// void nop_1x3byte_asm(uint64 count);
+// void nop_3x1byte_asm(uint64 count);
+// void nop_9x1byte_asm(uint64 count);
+
+// char const *labels[] =
+// {
+//     STRINGIFY(nop_1x3_asm)
+//     "nop_3x1_asm",
+//     "nop_1x3_asm",
+//     "nop_1x9_asm",
+// };
+
+// callback_t callbacks[] =
+// {
+//     nop_3x1_asm,
+//     nop_1x3_asm,
+//     nop_1x9_asm,
+// };
+#endif
 
 void reptest_do(int index, uint64 count)
 {
