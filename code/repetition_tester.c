@@ -91,8 +91,8 @@ void print_minimum_measurement()
     table_printer__print_column(printer, "%s", g_tester.label);
     table_printer__print_column(printer, "Min");
     table_printer__print_column(printer, "%.0lf us", time * 1e-3);
-    table_printer__print_column(printer, "%.2lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
-    if (page_faults > 0) table_printer__print_column(printer, "%llu (%.2lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
+    table_printer__print_column(printer, "%.6lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
+    if (page_faults > 0) table_printer__print_column(printer, "%llu (%.4lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
     else                 table_printer__print_column(printer, "");
 }
 
@@ -112,8 +112,8 @@ void print_rest_of_measurements()
         table_printer__print_column(printer, "");
         table_printer__print_column(printer, "Max");
         table_printer__print_column(printer, "%.0lf us", time * 1e-3);
-        table_printer__print_column(printer, "%.2lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
-        if (page_faults > 0) table_printer__print_column(printer, "%llu (%.2lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
+        table_printer__print_column(printer, "%.6lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
+        if (page_faults > 0) table_printer__print_column(printer, "%llu (%.4lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
         else                 table_printer__print_column(printer, "");
         table_printer__finish_row(printer);
     }

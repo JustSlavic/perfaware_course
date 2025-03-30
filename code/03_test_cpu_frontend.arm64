@@ -18,7 +18,8 @@ _write_buffer_asm:       ; x0 - count, x1 - data
 _nop_buffer_asm: ; x0 - count, x1 - data
     mov     x2, xzr
 .loop1:
-    nop
+    nop ; @note: remember that arm assembly is fixed-sized encoding
+        ;        so we don't have to adjust the size of the nop
     add     x2, x2, #1
     cmp     x2, x0
     b.cc    .loop1

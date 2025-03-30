@@ -1,0 +1,23 @@
+.global _rat_add
+.global _rat_mov_add
+
+.text
+.align 2
+
+_rat_add: ; x0 - count
+.loop0:
+    add     x1, x1, #1
+    add     x1, x1, #1
+    sub     x0, x0, #1
+    b.ge    .loop0
+    ret
+
+_rat_mov_add: ; x0 - count
+.loop1:
+    mov     x1, x0
+    add     x1, x1, #1
+    mov     x1, x0
+    add     x1, x1, #1
+    sub     x0, x0, #1
+    b.ge    .loop1
+    ret

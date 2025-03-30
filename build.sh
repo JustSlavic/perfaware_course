@@ -17,3 +17,7 @@ gcc $C_FLAGS $WARNINGS $DEFINES $INCLUDES -o 02_test_pagefault_count ../code/02_
 
 as ../code/03_test_cpu_frontend.arm64 -o 03_asm.o
 gcc $C_FLAGS -O1 $WARNINGS $DEFINES $INCLUDES -o 03_test_cpu_frontend ../code/03_test_cpu_frontend.c 03_asm.o
+
+
+
+# as ../code/04_test_rat.arm64 -o 03_rat.o
