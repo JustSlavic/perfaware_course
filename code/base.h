@@ -19,7 +19,7 @@ typedef unsigned long long  uint64;
 typedef          float     float32;
 typedef          double    float64;
 
-#if OS_WINDOWS
+#if OS_WINDOWS || OS_LINUX
 #define UINT64_MAX 0xffffffffffffffff
 #endif
 

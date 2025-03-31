@@ -65,14 +65,32 @@ uint64 get_frequency()
 
 
 #if OS_MAC
-uint64 get_time()
+uint64 get_time(void)
 {
     struct timespec t = {};
     clock_gettime(CLOCK_MONOTONIC, &t);
     return t.tv_sec * 1000000000 + t.tv_nsec;
 }
-uint64 get_frequency()
+
+uint64 get_frequency(void)
 {
-    return 1e9;
+    return 1000000000;
+}
+#endif
+
+#if OS_LINUX
+#include <sys/time.h>
+
+uint64 get_time()
+{
+    struct timeval t = {};
+    gettimeofday(&t, NULL);
+    uint64 result = t.tv_sec * 1000000 + t.tv_usec;
+    return result;
+}
+
+uint64 get_frequency(void)
+{
+    return 1000000;
 }
 #endif

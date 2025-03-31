@@ -3,9 +3,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-#if OS_LINUX
-#include <libproc.h>
-#endif
 #undef bool
 
 
@@ -86,13 +83,14 @@ void print_minimum_measurement()
     uint64 time = g_tester.minimum.value[RepTestMeasurement_Time];
     uint64 bytes = g_tester.minimum.value[RepTestMeasurement_Bytes];
     uint64 page_faults = g_tester.minimum.value[RepTestMeasurement_PageFaults];
+    float64 seconds = (float64) time / (float64) get_frequency();
 
     table_printer__start_row(printer);
     table_printer__print_column(printer, "%s", g_tester.label);
     table_printer__print_column(printer, "Min");
-    table_printer__print_column(printer, "%.0lf us", time * 1e-3);
-    table_printer__print_column(printer, "%.6lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
-    if (page_faults > 0) table_printer__print_column(printer, "%llu (%.4lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
+    table_printer__print_column(printer, "%.0lf us", 1e6 * seconds);
+    table_printer__print_column(printer, "%.6lf gb/s", (float64) bytes / (GIGABYTES(1) * seconds));
+    if (page_faults > 0) table_printer__print_column(printer, "%llu (%.4lf kB/f)", page_faults, 1e-3 * bytes / page_faults);
     else                 table_printer__print_column(printer, "");
 }
 
@@ -107,12 +105,13 @@ void print_rest_of_measurements()
         uint64 time = g_tester.maximum.value[RepTestMeasurement_Time];
         uint64 bytes = g_tester.maximum.value[RepTestMeasurement_Bytes];
         uint64 page_faults = g_tester.maximum.value[RepTestMeasurement_PageFaults];
+        float64 seconds = (float64) time / (float64) get_frequency();
 
         table_printer__start_row(printer);
         table_printer__print_column(printer, "");
         table_printer__print_column(printer, "Max");
-        table_printer__print_column(printer, "%.0lf us", time * 1e-3);
-        table_printer__print_column(printer, "%.6lf gb/s", bytes / ((float64) GIGABYTES(1) * time * 1e-9));
+        table_printer__print_column(printer, "%.0lf us", 1e6 * seconds);
+        table_printer__print_column(printer, "%.6lf gb/s", (float64) bytes / (GIGABYTES(1) * seconds));
         if (page_faults > 0) table_printer__print_column(printer, "%llu (%.4lf kB/f)", page_faults, (float64) 1e-3 * bytes / page_faults);
         else                 table_printer__print_column(printer, "");
         table_printer__finish_row(printer);
@@ -121,37 +120,15 @@ void print_rest_of_measurements()
         table_printer__start_row(printer);
         uint64 total_time = g_tester.total.value[RepTestMeasurement_Time];
         float64 avg_time = (float64) total_time / (float64) g_tester.hit_count;
+        float64 avg_seconds = avg_time / get_frequency();
         table_printer__print_column(printer, "");
         table_printer__print_column(printer, "Avg");
-        table_printer__print_column(printer, "%.0lf us", avg_time * 1e-3);
+        table_printer__print_column(printer, "%.0lf us", 1e6 * avg_seconds);
         table_printer__print_column(printer, "");
         table_printer__print_column(printer, "");
         table_printer__finish_row(printer);
     }
 }
-
-#if OS_WINDOWS
-#include <psapi.h>
-uint64 get_pagefaults_count()
-{
-    static HANDLE ProcessHandle;
-    if(!ProcessHandle)
-    {
-        ProcessHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
-    }
-
-    uint64 Result = 0;
-    if (ProcessHandle)
-    {
-        PROCESS_MEMORY_COUNTERS_EX MemoryCounters = {};
-        MemoryCounters.cb = sizeof(MemoryCounters);
-        GetProcessMemoryInfo(ProcessHandle, (PROCESS_MEMORY_COUNTERS *)&MemoryCounters, sizeof(MemoryCounters));
-
-        Result = MemoryCounters.PageFaultCount;
-    }
-    return Result;
-}
-#endif
 
 void reptest_count_bytes(uint64 bytes)
 {
@@ -208,7 +185,7 @@ bool is_testing(float64 seconds)
     }
     else if (g_tester.state == RepTestState_Testing)
     {
-        float64 seconds_since_start = (float64) (get_time() - g_tester.start_time) / 1000000000.0;
+        float64 seconds_since_start = (float64) (get_time() - g_tester.start_time) / get_frequency();
 
         for (int value = RepTestMeasurement_None; value < RepTestMeasurement_Count; value++)
         {

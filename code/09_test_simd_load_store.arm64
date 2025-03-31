@@ -1,0 +1,80 @@
+.global _load_1x16bytes
+.global _load_2x16bytes
+.global _load_3x16bytes
+.global _load_4x16bytes
+.global _store_1x16bytes
+.global _store_2x16bytes
+.global _store_3x16bytes
+.global _store_4x16bytes
+
+.text
+.align 2
+
+
+_load_1x16bytes: ; x0 - count, x1 - data
+.loop0:
+    ldr     q2, [x1]
+    subs    x0, x0, #16
+    b.ge    .loop0
+    ret
+
+_load_2x16bytes: ; x0 - count, x1 - data
+.loop1:
+    ldr     q2, [x1]
+    ldr     q2, [x1]
+    subs    x0, x0, #32
+    b.ge    .loop1
+    ret
+
+_load_3x16bytes: ; x0 - count, x1 - data
+.loop2:
+    ldr     q2, [x1]
+    ldr     q2, [x1]
+    ldr     q2, [x1]
+    subs    x0, x0, #48
+    b.ge    .loop2
+    ret
+
+_load_4x16bytes: ; x0 - count, x1 - data
+.loop3:
+    ldr     q2, [x1]
+    ldr     q2, [x1]
+    ldr     q2, [x1]
+    ldr     q2, [x1]
+    subs    x0, x0, #64
+    b.ge    .loop3
+    ret
+
+_store_1x16bytes: ; x0 - count, x1 - data
+.loop4:
+    str     q2, [x1]
+    subs    x0, x0, #16
+    b.ge    .loop4
+    ret
+
+_store_2x16bytes: ; x0 - count, x1 - data
+.loop5:
+    str     q2, [x1]
+    str     q2, [x1]
+    subs    x0, x0, #32
+    b.ge    .loop5
+    ret
+
+_store_3x16bytes: ; x0 - count, x1 - data
+.loop6:
+    str     q2, [x1]
+    str     q2, [x1]
+    str     q2, [x1]
+    subs    x0, x0, #48
+    b.ge    .loop6
+    ret
+
+_store_4x16bytes: ; x0 - count, x1 - data
+.loop7:
+    str     q2, [x1]
+    str     q2, [x1]
+    str     q2, [x1]
+    str     q2, [x1]
+    subs    x0, x0, #64
+    b.ge    .loop7
+    ret
