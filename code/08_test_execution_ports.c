@@ -63,16 +63,16 @@
     But the number of stores flattens on 2 stores per cycle.
 */
 
-typedef void (*callback_t)(uint64, void *);
+typedef ASM_CALL void (*callback_t)(uint64, void *);
 
-void load_1x8bytes(uint64 size, void *data);
-void load_2x8bytes(uint64 size, void *data);
-void load_3x8bytes(uint64 size, void *data);
-void load_4x8bytes(uint64 size, void *data);
-void store_1x8bytes(uint64 size, void *data);
-void store_2x8bytes(uint64 size, void *data);
-void store_3x8bytes(uint64 size, void *data);
-void store_4x8bytes(uint64 size, void *data);
+ASM_CALL void load_1x8bytes(uint64 size, void *data);
+ASM_CALL void load_2x8bytes(uint64 size, void *data);
+ASM_CALL void load_3x8bytes(uint64 size, void *data);
+ASM_CALL void load_4x8bytes(uint64 size, void *data);
+ASM_CALL void store_1x8bytes(uint64 size, void *data);
+ASM_CALL void store_2x8bytes(uint64 size, void *data);
+ASM_CALL void store_3x8bytes(uint64 size, void *data);
+ASM_CALL void store_4x8bytes(uint64 size, void *data);
 
 char const *labels[] =
 {
@@ -101,11 +101,11 @@ callback_t callbacks[] =
 void reptest_do(int index, uint64 count)
 {
     g_tester.label = labels[index];
-    uint64 data;
-    while (is_testing(60))
+    uint64 data[32]; // well more than necessary
+    while (is_testing(30))
     {
         reptest_begin_time();
-        callbacks[index](count, &data);
+        callbacks[index](count, data);
         reptest_end_time();
         reptest_count_bytes(count);
     }

@@ -6,50 +6,8 @@ global ssse3_available
 global sse4_1_available
 global sse4_2_available
 
-global test_load_2x32
-global test_load_2x64
-global test_load_2x128
-global test_load_2x256
-; global test_load_2x512
-
 section .text
 
-
-test_load_2x32: ; count - rcx, data - rdx
-    align 64
-.loop:
-    mov eax, [rdx]
-    mov eax, [rdx + 4]
-    sub rcx, 8
-    jnle .loop
-    ret
-
-test_load_2x64: ; count - rcx, data - rdx
-    align 64
-.loop:
-    mov rax, [rdx]
-    mov rax, [rdx + 8]
-    sub rcx, 16
-    jnle .loop
-    ret
-
-test_load_2x128: ; count - rcx, data - rdx
-    align 64
-.loop:
-    vmovdqu xmm0, [rdx]
-    vmovdqu xmm0, [rdx + 16]
-    sub rcx, 32
-    jnle .loop
-    ret
-
-test_load_2x256:
-    align 64
-.loop:
-    vmovdqu ymm0, [rdx]
-    vmovdqu ymm0, [rdx + 32]
-    sub rcx, 64
-    jnle .loop
-    ret
 
 ; MMX Technology support
 mmx_available:
@@ -112,14 +70,3 @@ sse4_2_available:
     shr eax, 20   ; 20-th bit in ecx is the sse4.2 flag
     and eax, 1
     ret
-
-
-
-; test_load_2x512:
-;     align 64
-; .loop:
-;     vmovdqu zmm0, [rdx]
-;     vmovdqu zmm0, [rdx]
-;     sub rcx, 128
-;     jnle .loop
-;     ret

@@ -1,4 +1,4 @@
-global test_branch_predictor_asm:
+global test_branch_predictor_asm
 
 section .text
 

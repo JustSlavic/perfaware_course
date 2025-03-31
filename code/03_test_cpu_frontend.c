@@ -134,19 +134,19 @@
     on the instruction decoding due to arm being fixed-sized encoding.
 */
 
-void write_buffer_c(uint64 count, void *data)
+ASM_CALL void write_buffer_c(uint64 count, void *data)
 {
     for (uint64 index = 0; index < count; index++)
     {
         ((uint8 *) data)[index] = (uint8) index;
     }
 }
-void write_buffer_asm(uint64 count, void *data);
-void nop_buffer_asm(uint64 count, void *data);
-void cmp_buffer_asm(uint64 count, void *data);
-void dec_buffer_asm(uint64 count, void *data);
+ASM_CALL void write_buffer_asm(uint64 count, void *data);
+ASM_CALL void nop_buffer_asm(uint64 count, void *data);
+ASM_CALL void cmp_buffer_asm(uint64 count, void *data);
+ASM_CALL void dec_buffer_asm(uint64 count, void *data);
 
-typedef void (*callback_t)(uint64, void *);
+typedef ASM_CALL void (*callback_t)(uint64, void *);
 
 char const *labels[] =
 {
@@ -169,7 +169,7 @@ callback_t callbacks[] =
 void reptest_do(int index, uint64 count, void *data)
 {
     g_tester.label = labels[index];
-    while (is_testing(60))
+    while (is_testing(30))
     {
         reptest_begin_time();
         callbacks[index](count, data);

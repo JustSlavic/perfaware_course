@@ -67,15 +67,15 @@
     decoding "window" 32 bytes (8 instructions).
 */
 
-typedef void (*callback_t)(uint64);
+typedef ASM_CALL void (*callback_t)(uint64);
 
 #if OS_MAC
 // Arm is fixed-size, so we don't have variable-length nops
 // let's try to test it with 1, 2, 4, and 8 4-byte nops
-void nop_1x4byte_asm(uint64 count);
-void nop_2x4byte_asm(uint64 count);
-void nop_4x4byte_asm(uint64 count);
-void nop_8x4byte_asm(uint64 count);
+ASM_CALL void nop_1x4byte_asm(uint64 count);
+ASM_CALL void nop_2x4byte_asm(uint64 count);
+ASM_CALL void nop_4x4byte_asm(uint64 count);
+ASM_CALL void nop_8x4byte_asm(uint64 count);
 
 char const *labels[] =
 {
@@ -93,9 +93,9 @@ callback_t callbacks[] =
     nop_8x4byte_asm,
 };
 #else
-void nop_1x3byte_asm(uint64 count);
-void nop_3x1byte_asm(uint64 count);
-void nop_9x1byte_asm(uint64 count);
+ASM_CALL void nop_1x3byte_asm(uint64 count);
+ASM_CALL void nop_3x1byte_asm(uint64 count);
+ASM_CALL void nop_9x1byte_asm(uint64 count);
 
 char const *labels[] =
 {
@@ -115,7 +115,7 @@ callback_t callbacks[] =
 void reptest_do(int index, uint64 count)
 {
     g_tester.label = labels[index];
-    while (is_testing(60))
+    while (is_testing(30))
     {
         reptest_begin_time();
         callbacks[index](count);

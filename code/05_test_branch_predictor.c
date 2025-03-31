@@ -60,7 +60,7 @@
 */
 
 
-void test_branch_predictor_asm(uint64 count, void *data);
+ASM_CALL void test_branch_predictor_asm(uint64 count, void *data);
 
 enum
 {
@@ -142,7 +142,7 @@ void reptest_branch_predictor(uint64 size, int jump_strategy)
     uint8 *data = (uint8 *) allocate_pages(size);
     fill_bytes(jump_strategy, size, data);
     g_tester.label = labels[jump_strategy];
-    while (is_testing(60))
+    while (is_testing(30))
     {
         reptest_begin_time();
         test_branch_predictor_asm(size, data);

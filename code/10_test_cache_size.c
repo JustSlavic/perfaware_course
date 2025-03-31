@@ -1,25 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 #include "base.h"
 #include "os_specifics.c"
+
+#undef bool
+
 
 #include "timing.h"
 #include "profiler.h"
 #include "repetition_tester.h"
 
+/*
+    M1 CPU
+    gb/s
+    140  *--*--*--*--*--*--*--*--*\
+    120                            \
+    100                             \
+     80                              \*----*---*--*--*--*\
+     60                                                   \*---*---*----*----*----*---*
+     40
+     20
+        1k 2k 4k 8k 16k 32k 64k 128k 256k 512k 1M 2M 4M 8M 16M 32M 64M 128M 256M 512M 1Gb
+*/
 
-void test_cache_size(uint64 count, void *data, uint64 mask);
-#pragma comment(lib, "cachesize")
-
+ASM_CALL void test_cache_size_asm(uint64 count, void *data, uint64 mask);
 
 uint64 sizes[] =
 {
-    1 << 6,
-    1 << 7,
-    1 << 8,
-    1 << 9,
     1 << 10,
     1 << 11,
     1 << 12,
@@ -45,10 +53,6 @@ uint64 sizes[] =
 
 char const *labels[] =
 {
-    "64 bytes",  // 1 << 6
-    "128 bytes", // 1 << 7
-    "256 bytes", // 1 << 8
-    "512 bytes", // 1 << 9
     "1 Kb",      // 1 << 10
     "2 Kb",      // 1 << 11
     "4 Kb",      // 1 << 12
@@ -72,39 +76,34 @@ char const *labels[] =
     "1 Gb",      // 1 << 30
 };
 
-#pragma optimize("", off)
-
-void reptest_do(int32 index, uint64 count, void *data)
+void reptest_do(int index, uint64 size, void *data)
 {
-    g_tester.print_results = true;
     g_tester.label = labels[index];
     uint64 mask = sizes[index] - 1;
     while (is_testing(30))
     {
         reptest_begin_time();
-        test_cache_size(count, data, mask);
+        test_cache_size_asm(size, data, mask);
         reptest_end_time();
-        reptest_count_bytes(count);
+        reptest_count_bytes(size);
     }
-
-    // {
-    //     uint64 time = g_tester.minimum.value[RepTestMeasurement_Time];
-    //     uint64 bytes = g_tester.minimum.value[RepTestMeasurement_Bytes];
-    //     uint64 page_faults = g_tester.minimum.value[RepTestMeasurement_PageFaults];
-    //     printf("%llu,%lf\n", sizes[index], bytes / ((float64) GIGABYTES(1) * time * 1e-9));
-    // }
 }
-
 
 int main()
 {
-    uint64 count = GIGABYTES(1);
-    void *data = allocate_pages(count);
+    uint64 size = GIGABYTES(1);
+    uint8 *data = (uint8 *) allocate_pages(size);
+    // Write to all bytes, so Linux will really allocate
+    // those pages, instead of pointing all of them to one
+    // fake ass page.
+    for (uint64 index = 0; index < size; index++) data[index] = (uint8) index;
+
+    g_tester.print_results = true;
     // while (true)
     {
         for (int i = 0; i < ARRAY_COUNT(sizes); i++)
         {
-            reptest_do(i, count, data);
+            reptest_do(i, size, data);
         }
     }
     return 0;

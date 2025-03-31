@@ -94,13 +94,15 @@ uint64 get_os_random_buffer(uint32 size, uint8 *buffer)
 uint64 get_pagefaults_count(void)
 {
     struct rusage usage = {};
-    getrusage(RUSAGE_SELF, &usage)l;
+    getrusage(RUSAGE_SELF, &usage);
     uint64 result = usage.ru_minflt + usage.ru_majflt;
     return result;
 }
 #endif
 
 #if OS_MAC
+#import <libproc.h>
+
 uint64 get_pagefaults_count(void)
 {
     struct proc_taskinfo info;

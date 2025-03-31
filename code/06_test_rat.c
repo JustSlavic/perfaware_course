@@ -54,10 +54,10 @@
     mental model of the CPU.
 */
 
-typedef void (*callback_t)(uint64);
+typedef ASM_CALL void (*callback_t)(uint64);
 
-void rat_add_asm(uint64 count);
-void rat_mov_add_asm(uint64 count);
+ASM_CALL void rat_add_asm(uint64 count);
+ASM_CALL void rat_mov_add_asm(uint64 count);
 
 char const *labels[] =
 {
@@ -74,7 +74,7 @@ callback_t callbacks[] =
 void reptest_do(int index, uint64 count)
 {
     g_tester.label = labels[index];
-    while (is_testing(60))
+    while (is_testing(30))
     {
         reptest_begin_time();
         callbacks[index](count);

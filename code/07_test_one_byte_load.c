@@ -33,11 +33,11 @@
 +-------------------+-----+-------------------+-------------------+----------------------+
 */
 
-typedef void (*callback_t)(uint64, void *);
+typedef ASM_CALL void (*callback_t)(uint64, void *);
 
-void load_1byte(uint64 size, void *data);
-void load_4bytes(uint64 size, void *data);
-void load_8bytes(uint64 size, void *data);
+ASM_CALL void load_1byte(uint64 size, void *data);
+ASM_CALL void load_4bytes(uint64 size, void *data);
+ASM_CALL void load_8bytes(uint64 size, void *data);
 
 char const *labels[] =
 {
@@ -57,7 +57,7 @@ void reptest_do(int index, uint64 count)
 {
     g_tester.label = labels[index];
     uint64 data;
-    while (is_testing(60))
+    while (is_testing(30))
     {
         reptest_begin_time();
         callbacks[index](count, &data);

@@ -23,6 +23,14 @@ typedef          double    float64;
 #define UINT64_MAX 0xffffffffffffffff
 #endif
 
+#if OS_LINUX
+#if defined(__GNUC__) && !defined(__clang__)
+#define ASM_CALL __attribute__((ms_abi))
+#endif // GNU COMPILER
+#else
+#define ASM_CALL
+#endif // OS_LINUX
+
 #define STRUCT(NAME) typedef struct NAME NAME; struct NAME
 #define ENUM(NAME) typedef enum NAME NAME; enum NAME
 #define ARRAY_COUNT(ARRAY) (sizeof(ARRAY) / sizeof(ARRAY[0]))
