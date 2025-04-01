@@ -141,6 +141,20 @@ void reptest_branch_predictor(uint64 size, int jump_strategy)
 {
     uint8 *data = (uint8 *) allocate_pages(size);
     fill_bytes(jump_strategy, size, data);
+
+#if OS_LINUX
+    printf("%10llu | %3llu | %3llu | %3llu | %3llu | %3llu\n",
+        (((uint64) data) >> (9 + 9 + 9 + 9 + 12)) & 0xffff,
+        (((uint64) data) >> (9 + 9 + 9     + 12)) & 0x1ff,
+        (((uint64) data) >> (9 + 9         + 12)) & 0x1ff,
+        (((uint64) data) >> (9             + 12)) & 0x1ff,
+        (((uint64) data) >> (                12)) & 0x1ff,
+        (((uint64) data)) & 0x5ff
+        );
+
+    data[size - 1] = 69;
+#endif
+
     g_tester.label = labels[jump_strategy];
     while (is_testing(30))
     {

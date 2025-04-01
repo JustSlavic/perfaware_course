@@ -13,5 +13,5 @@ test_branch_predictor_asm:
     nop
 .skip:
     cmp     rax, rcx
-    jb      .loop
+    jl      .loop
     ret
