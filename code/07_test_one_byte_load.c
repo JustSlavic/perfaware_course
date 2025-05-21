@@ -13,7 +13,7 @@
 
 /*
     This test is designed to show that loading one byte
-    takes exactly the same time as loading the 4 or 8 bytes.
+    takes exactly the same time as loading 4 or 8 bytes.
 
     Arm64
 +-------------------+-----+-------------------+-------------------+----------------------+

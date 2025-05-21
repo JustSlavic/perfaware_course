@@ -70,6 +70,14 @@ elif [[ $os_name == "Darwin" ]]; then
     compile_test_arm64_mac "08_test_execution_ports"
     compile_test_arm64_mac "09_test_simd_load"
     compile_test_arm64_mac "10_test_cache_size"
+    compile_test_arm64_mac "11_test_unaligned_load"
+
+    gcc $C_FLAGS $WARNINGS $DEFINES $INCLUDES -o build/generate_data code/generate_data.c
+    echo "Done [build/generate_data]"
+    gcc $C_FLAGS $WARNINGS $DEFINES $INCLUDES -o build/12_test_math_functions_domain code/12_test_math_functions_domain.c
+    echo "Done [build/12_test_math_functions_domain]"
+    gcc $C_FLAGS $WARNINGS $DEFINES $INCLUDES -o build/13_test_math_functions_error code/13_test_math_functions_error.c
+    echo "Done [build/13_test_math_functions_error]"
 else
     echo "Could not recognize the system I'm on! (${os_name})"
     exit 1
