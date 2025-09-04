@@ -77,6 +77,8 @@ elif [[ $os_name == "Darwin" ]]; then
 
     compile_test_arm64_mac "12_test_math_functions_domain"
     compile_test_arm64_mac "13_test_math_functions_error"
+    compile_test_arm64_mac "14_test_sqrt_simd"
+    compile_test_arm64_mac "15_test_taylor_sine_approximations"
 else
     echo "Could not recognize the system I'm on! (${os_name})"
     exit 1

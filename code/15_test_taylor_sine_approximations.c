@@ -3,25 +3,8 @@
 #include <math.h>
 #include <string.h>
 
-#if OS_MAC
-// Neon
-#include <arm_neon.h>
-typedef float32x2_t float32x2;
-typedef float32x4_t float32x4;
-typedef float64x1_t float64x1;
-typedef float64x2_t float64x2;
-#endif
-
 #include "base.h"
-
 #include "math_reference_tables.c"
-
-typedef struct
-{
-    char const *name;
-    math_function *function;
-    math_reference_table *table;
-} function_to_table_compare;
 
 typedef struct
 {
@@ -37,87 +20,68 @@ typedef struct
     float64 step;
 } function_to_function_compare;
 
-function_to_table_compare table_compares[] =
+float64 sine_quadratic_approximation(float64 x)
 {
-    {
-        .name = "sqrt",
-        .function = sqrt,
-        .table = &math_reference_sqrt,
-    },
-    {
-        .name = "sin",
-        .function = sin,
-        .table = &math_reference_sin,
-    },
-    {
-        .name = "cos",
-        .function = cos,
-        .table = &math_reference_cos,
-    },
-    {
-        .name = "asin",
-        .function = asin,
-        .table = &math_reference_asin,
-    },
-};
-
-float64 compute_error_table(math_reference_table *table, math_function *f)
-{
-    float64 max_error = 0.f;
-    for (int i = 0; i < table->count; i++)
-    {
-        math_reference_pair p = table->table[i];
-
-        float64 y = f(p.x);
-        float64 e = fabs(p.y - y);
-        if (e > max_error) max_error = e;
-    }
-    return max_error;
+    float64 result = (4.0 / pi) * x - (4.0 / (pi*pi)) * x * x;
+    return result;
 }
 
-double sqrt_0(double x) { return 0.0; }
-double sin_0(double x) { return 0.0; }
-double cos_0(double x) { return 0.0; }
-double asin_0(double x) { return 0.0; }
+float64 sine_taylor_2_terms(float64 x)
+{
+    float64 result = x - x*x*x/6.0;
+    return result;
+}
+
+float64 sine_taylor_3_terms(float64 x)
+{
+    float64 result = x - x*x*x/6.0 + x*x*x*x*x/120.0;
+    return result;
+}
+
+float64 sine_taylor_4_terms(float64 x)
+{
+    float64 result = x - x*x*x/6.0 + x*x*x*x*x/120.0 - x*x*x*x*x*x*x/5040.0;
+    return result;
+}
 
 function_to_function_compare function_compares[] =
 {
     {
-        .name = "sqrt_0",
-        .reference_function = cos,
-        .function = cos_0,
-        .domain = {
-            .min = -pi,
-            .max =  pi,
-        },
-        .step = 0.01,
-    },
-    {
-        .name = "sin_0",
+        .name = "sine_quadratic_approximation",
         .reference_function = sin,
-        .function = cos_0,
+        .function = sine_quadratic_approximation,
         .domain = {
-            .min = -pi,
+            .min =   0,
             .max =  pi,
         },
         .step = 0.01,
     },
     {
-        .name = "cos_0",
-        .reference_function = cos,
-        .function = cos_0,
+        .name = "sine_taylor_2_terms",
+        .reference_function = sin,
+        .function = sine_taylor_2_terms,
         .domain = {
             .min = -pi,
-            .max =  pi,
+            .max = pi,
         },
         .step = 0.01,
     },
     {
-        .name = "asin_0",
-        .reference_function = asin,
-        .function = asin_0,
+        .name = "sine_taylor_3_terms",
+        .reference_function = sin,
+        .function = sine_taylor_3_terms,
         .domain = {
-            .min = 0.0,
+            .min = -pi,
+            .max = pi,
+        },
+        .step = 0.01,
+    },
+    {
+        .name = "sine_taylor_4_terms",
+        .reference_function = sin,
+        .function = sine_taylor_4_terms,
+        .domain = {
+            .min = -pi,
             .max = pi,
         },
         .step = 0.01,
@@ -167,13 +131,6 @@ compute_error_result compute_error_function(function_to_function_compare *comp)
 
 int main()
 {
-    printf("stdlib vs table:\n");
-    for (int i = 0; i < ARRAY_COUNT(table_compares); i++)
-    {
-        function_to_table_compare comp = table_compares[i];
-        float64 error = compute_error_table(comp.table, comp.function);
-        printf("    %10s %.20lf\n", comp.name, error);
-    }
     printf("stdlib vs stubs:\n");
     for (int i = 0; i < ARRAY_COUNT(function_compares); i++)
     {
