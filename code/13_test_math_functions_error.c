@@ -2,17 +2,17 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+
+#if OS_MAC
 // Neon
 #include <arm_neon.h>
 typedef float64x1_t double1;
 typedef float64x2_t double2;
+#endif
 
 #include "base.h"
 
-#include "reference_sqrt.h"
-#include "reference_sin.h"
-#include "reference_cos.h"
-#include "reference_asin.h"
+#include "math_reference_tables.c"
 
 typedef struct
 {
@@ -83,6 +83,7 @@ float64 compute_error_table(math_reference_table *table, math_function *f)
     return max_error;
 }
 
+#if OS_MAC
 float64 sqrt_neon_x1(float64 x)
 {
     double1 xmm0 = vdup_n_f64(x);
@@ -98,6 +99,7 @@ float64 sqrt_neon_x2(float64 x)
     float64 result = vgetq_lane_f64(xmm1, 0);
     return result;
 }
+#endif // OS_MAC
 
 float64 sine_quadratic_approximation(float64 x)
 {
@@ -123,8 +125,20 @@ float64 sine_taylor_4_terms(float64 x)
     return result;
 }
 
+float64 cos_0(float64 x)
+{
+    return 0.0;
+}
+
+float64 asin_0(float64 x)
+{
+    return 0.0;
+}
+
+
 function_to_function_compare function_compares[] =
 {
+#if OS_MAC
     {
         .name = "sqrt_neon_x1",
         .reference_function = sqrt,
@@ -145,23 +159,14 @@ function_to_function_compare function_compares[] =
         },
         .step = 0.01,
     },
+#endif // OS_MAC
     {
-        .name = "sine_quadratic_0_pi",
-        .reference_function = sin,
-        .function = sine_quadratic_approximation,
-        .domain = {
-            .min = 0.0,
-            .max = pi,
-        },
-        .step = 0.01,
-    },
-    {
-        .name = "sine quadratic_pi_pi",
+        .name = "sine_quadratic_approximation",
         .reference_function = sin,
         .function = sine_quadratic_approximation,
         .domain = {
             .min = -pi,
-            .max = pi,
+            .max =  pi,
         },
         .step = 0.01,
     },
@@ -191,6 +196,26 @@ function_to_function_compare function_compares[] =
         .function = sine_taylor_4_terms,
         .domain = {
             .min = -pi,
+            .max = pi,
+        },
+        .step = 0.01,
+    },
+    {
+        .name = "cos_0",
+        .reference_function = cos,
+        .function = cos_0,
+        .domain = {
+            .min = -pi,
+            .max =  pi,
+        },
+        .step = 0.01,
+    },
+    {
+        .name = "asin_0",
+        .reference_function = asin,
+        .function = asin_0,
+        .domain = {
+            .min = 0.0,
             .max = pi,
         },
         .step = 0.01,
@@ -238,14 +263,14 @@ compute_error_result compute_error_function(function_to_function_compare *comp)
 
 int main()
 {
-    printf("Max errors from table:\n");
+    printf("stdlib vs table:\n");
     for (int i = 0; i < ARRAY_COUNT(table_compares); i++)
     {
         function_to_table_compare comp = table_compares[i];
         float64 error = compute_error_table(comp.table, comp.function);
         printf("    %10s %.20lf\n", comp.name, error);
     }
-    printf("Max errors from reference functions:\n");
+    printf("stdlib vs stubs:\n");
     for (int i = 0; i < ARRAY_COUNT(function_compares); i++)
     {
         compute_error_result error = compute_error_function(function_compares + i);

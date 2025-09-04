@@ -48,6 +48,17 @@ typedef          double    float64;
 #define half_pi 1.5707963267948966192313216916397514420985846996875529104874722961539082031
 #define two_pi 6.28318530717958647692528676655900576839433879875021164194988918461563281257
 
+
+typedef struct
+{
+    char const *filename;
+    char const *function;
+    uint32 line;
+} code_location;
+
+#define CL_HERE ((code_location){ .filename = __FILE__, .function = __FUNCTION__, .line = __LINE__ })
+
+
 #define print_column(width, fmt, ...) \
     n += printf("%.*s", max(w - n, 0), spaces); \
     n += printf(fmt, __VA_ARGS__); \

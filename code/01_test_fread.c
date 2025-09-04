@@ -17,7 +17,7 @@ void reptest_fread()
     void *memory = allocate_pages(filesize);
 
     g_tester.label = "fread";
-    while (is_testing(30))
+    while (is_testing(10))
     {
         FILE *f = fopen(filename, "rb");
         reptest_begin_time();
@@ -36,7 +36,7 @@ void reptest_mmap_fread()
     uint64 filesize = get_filesize(filename);
 
     g_tester.label = "mmap + fread";
-    while (is_testing(30))
+    while (is_testing(10))
     {
         FILE *f = fopen(filename, "rb");
         void *memory = allocate_pages(filesize);

@@ -2,7 +2,6 @@
 #define PROFILER_H
 
 #include "base.h"
-#include "code_location.h"
 
 
 typedef struct

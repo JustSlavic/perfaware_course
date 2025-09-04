@@ -54,7 +54,7 @@ int main()
 
                 g_tester.label = label;
 
-                while (is_testing(30))
+                while (is_testing(5))
                 {
                     reptest_begin_time();
                     load_8bytes_unaligned_asm(outer_loop_count, data + alignment, inner_loop_count);
