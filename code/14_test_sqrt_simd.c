@@ -172,20 +172,15 @@ typedef struct
     float64 x, y;
 } compute_error_result;
 
-compute_error_result compute_error_function(function_to_function_compare *comp)
+compute_error_result compute_error_function(function_to_function_compare *comp, FILE *csv)
 {
     compute_error_result max_error = {};
 
     if (comp->domain.max < comp->domain.min)
         return max_error;
 
-    char error_filename[256] = {};
-    sprintf(error_filename, "%s_error_graph.csv", comp->name);
-    FILE *error_file = fopen(error_filename, "wb+");
-    if (!error_file)
-        return max_error;
-
-    fprintf(error_file, "x,y,e\n");
+    if (csv)
+        fprintf(csv, "x,y,e\n");
 
     float64 x = comp->domain.min;
     while (x < comp->domain.max)
@@ -199,11 +194,11 @@ compute_error_result compute_error_function(function_to_function_compare *comp)
             max_error.y = e;
         }
 
-        fprintf(error_file, "%lf,%lf,%lf\n", x, y, e);
+        if (csv)
+            fprintf(csv, "%lf,%lf,%lf\n", x, y, e);
         x += comp->step;
     }
 
-    fclose(error_file);
     return max_error;
 }
 
@@ -213,8 +208,18 @@ int main()
     printf("stdlib vs stubs:\n");
     for (int i = 0; i < ARRAY_COUNT(function_compares); i++)
     {
-        compute_error_result error = compute_error_function(function_compares + i);
+#if 0
+        char error_filename[256] = {};
+        sprintf(error_filename, "%s_error_graph.csv", comp->name);
+        FILE *error_file = fopen(error_filename, "wb+");
+        if (!error_file)
+            return max_error;
+#endif
+        compute_error_result error = compute_error_function(function_compares + i, NULL);
         printf("    %s%.*sf(%+lf) = %.20lf\n", function_compares[i].name, (int)(30 - strlen(function_compares[i].name)), spaces, error.x, error.y);
+#if 0
+    fclose(error_file);
+#endif
     }
 
     return 0;
