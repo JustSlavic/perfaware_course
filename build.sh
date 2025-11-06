@@ -82,6 +82,7 @@ elif [[ $os_name == "Darwin" ]]; then
     # compile_test_arm64_mac "16_test_taylor_horner"
     # compile_test_arm64_mac "17_test_taylor_horner_fmadd"
     compile_test_arm64_mac "18_test_fma_table"
+    compile_test_arm64_mac "19_test_arcsine_part_1"
 else
     echo "Could not recognize the system I'm on! (${os_name})"
     exit 1
