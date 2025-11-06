@@ -112,6 +112,8 @@ compute_taylor_result compute_error_sine_taylor(
 int main()
 {
     compute_taylor_result results[128] = {};
+    int32 result_count = 0;
+
     for (int power = 1; power < 32; power += 2)
     {
         compute_taylor_result error = compute_error_sine_taylor(
@@ -119,8 +121,8 @@ int main()
             0.005*pi,
             power,
             sine_taylor);
-        error.name = "Taylor FMA";
-        results[power] = error;
+        error.name = "Taylor";
+        results[result_count++] = error;
     }
     for (int power = 1; power < 32; power += 2)
     {
@@ -130,7 +132,7 @@ int main()
             power,
             sine_taylor_horner);
         error.name = "Horner FMA";
-        results[power + 1] = error;
+        results[result_count++] = error;
     }
 
     for (int i = 0; i < ARRAY_COUNT(results); i++)
