@@ -5,6 +5,7 @@
 
 #include "base.h"
 #include "math_reference_tables.c"
+#include "18_sine_coefficients.inl"
 
 #if OS_MAC
 // Neon
@@ -48,6 +49,45 @@ float64 sine_taylor(float64 x, int32 max_power)
     }
 
     return sum;
+}
+
+float64 sine_fma_table_taylor(float64 x, int32 max_power)
+{
+#define C sine_taylor_coeffs
+    float64x2 sum = vdupq_n_f64(0);
+    float64x2 x2 = vdupq_n_f64(x * x);
+
+    int32 index = max_power / 2;
+    for (; index >= 0; index--)
+    {
+        float64x2 c = vdupq_n_f64(C[index]);
+        sum = vfmaq_f64(c, sum, x2);
+    }
+    sum = vmulq_f64(sum, vdupq_n_f64(x));
+
+    double result = vgetq_lane_f64(sum, 0);
+    return result;
+#undef C
+}
+
+float64 sine_fma_table_minimax(float64 x, int32 max_power)
+{
+#define C sine_minimax_coeffs
+    float64x2 sum = vdupq_n_f64(0);
+    float64x2 x2 = vdupq_n_f64(x * x);
+
+    int32 coeff_count = max_power / 2;
+    int32 index = max_power / 2;
+    for (; index >= 0; index--)
+    {
+        float64x2 c = vdupq_n_f64(C[coeff_count][index]);
+        sum = vfmaq_f64(c, sum, x2);
+    }
+    sum = vmulq_f64(sum, vdupq_n_f64(x));
+
+    double result = vgetq_lane_f64(sum, 0);
+    return result;
+#undef C
 }
 
 uint64 compute_factorial(uint64 x)
@@ -132,6 +172,27 @@ int main()
         error.name = "Horner FMA";
         results[power + 1] = error;
     }
+    for (int power = 1; power < 32; power += 2)
+    {
+        compute_taylor_result error = compute_error_sine_taylor(
+            (math_domain){ .min = 0, .max = half_pi },
+            0.005*pi,
+            power,
+            sine_fma_table_taylor);
+        error.name = "Taylor Table FMA";
+        results[power + 1] = error;
+    }
+    for (int power = 1; power < 22g; power += 2)
+    {
+        compute_taylor_result error = compute_error_sine_taylor(
+            (math_domain){ .min = 0, .max = half_pi },
+            0.005*pi,
+            power,
+            sine_fma_table_minimax);
+        error.name = "Minimax Table FMA";
+        results[power + 1] = error;
+    }
+
 
     for (int i = 0; i < ARRAY_COUNT(results); i++)
     {
