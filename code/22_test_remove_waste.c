@@ -67,13 +67,39 @@ float64 my_cosine(float64 x)
     return result;
 }
 
+float64x1 v_arcsine_kernel(float64x1 x)
+{
+    float64x1 xx = vmul_f64(x, x);
+    float64x1 a = vdup_n_f64(0x1.dfc53682725cap-1);
+    a = vfma_f64(vdup_n_f64(-0x1.bec6daf74ed61p1), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.8bf4dadaf548cp2), a, xx);
+    a = vfma_f64(vdup_n_f64(-0x1.b06f523e74f33p2), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.4537ddde2d76dp2), a, xx);
+    a = vfma_f64(vdup_n_f64(-0x1.6067d334b4792p1), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.1fb54da575b22p0), a, xx);
+    a = vfma_f64(vdup_n_f64(-0x1.57380bcd2890ep-2), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.69b370aad086ep-4), a, xx);
+    a = vfma_f64(vdup_n_f64(-0x1.21438ccc95d62p-8), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.b8a33b8e380efp-7), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.c37061f4e5f55p-7), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.1c875d6c5323dp-6), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.6e88ce94d1149p-6), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.f1c73443a02f5p-6), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.6db6db3184756p-5), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.3333333380df2p-4), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1.555555555531ep-3), a, xx);
+    a = vfma_f64(vdup_n_f64(0x1p0), a, xx);
+    a = vmul_f64(a, x);
+    return a;
+}
+
 float64 my_arcsine(float64 arg)
 {
     int need_transform = arg > one_over_sqrt_2;
     float64 x = need_transform ? my_sqrt(1 - arg*arg) : arg;
 
     float64x2 xx = vdupq_n_f64(x * x);
-    float64x2 a = vdupq_n_f64( 0x1.dfc53682725cap-1);
+    float64x2 a = vdupq_n_f64(0x1.dfc53682725cap-1);
     a = vfmaq_f64(vdupq_n_f64(-0x1.bec6daf74ed61p1), a, xx);
     a = vfmaq_f64(vdupq_n_f64(0x1.8bf4dadaf548cp2), a, xx);
     a = vfmaq_f64(vdupq_n_f64(-0x1.b06f523e74f33p2), a, xx);
@@ -356,6 +382,66 @@ float64 compute_haversine_buffer_average_F(haversine_computation *hcomps, int32 
     return result;
 }
 
+float64 compute_haversine_buffer_average_G(haversine_computation *hcomps, int32 n)
+{
+    // Unwrap sine
+    float64x1 average = vdup_n_f64(0);
+    float64x1 coeff = vdup_n_f64(2.0 * EARTH_RADIUS / n);
+    float64x1 deg_to_rad_coeff = vdup_n_f64(0.01745329251994329577);
+    float64x1 v_half_pi = vdup_n_f64(half_pi);
+
+    for (int i = 0; i < n; i++)
+    {
+        float64 x0 = hcomps[i].x0;
+        float64 y0 = hcomps[i].y0;
+        float64 x1 = hcomps[i].x1;
+        float64 y1 = hcomps[i].y1;
+
+        // Combined convert to radians and divide by 2
+        float64 dlon = (x1 - x0) * 0.008726646259971647884618453842443;
+        float64 dlat = (y1 - y0) * 0.008726646259971647884618453842443;
+
+        // Convert to radians + add half_pi for cos compute
+        float64 lat0 = vfma_f64(v_half_pi, vdup_n_f64(y0), deg_to_rad_coeff);
+        float64 lat1 = vfma_f64(v_half_pi, vdup_n_f64(y1), deg_to_rad_coeff);
+
+        // Unwrap sine to remove branch at the end, because we square result anyway
+        float64x1 s1;
+        {
+            float64 abs_x = fabs(dlat);
+            float64 x = (abs_x > half_pi) ? (pi - abs_x) : abs_x;
+            s1 = v_sine_kernel(vdup_n_f64(x));
+        }
+
+        float64x1 s2;
+        {
+            float64 abs_x = fabs(dlon);
+            float64 x = (abs_x > half_pi) ? (pi - abs_x) : abs_x;
+            s2 = v_sine_kernel(vdup_n_f64(x));
+        }
+
+        float64 c1 = my_sine(lat0);
+        float64 c2 = my_sine(lat1);
+
+        float64x1 a = vfma_f64(vmul_f64(s1, s1), vdup_n_f64(c1 * c2), vmul_f64(s2, s2));
+        float64x1 asin_arg = vsqrt_f64(a);
+        float64 c; // = my_arcsine(asin_arg);
+        {
+            int need_transform = vget_lane_f64(asin_arg, 0) > one_over_sqrt_2;
+            float64x1 X = need_transform ? vsqrt_f64(vsub_f64(vdup_n_f64(1), a)) : asin_arg;
+
+            float64 Y = v_arcsine_kernel(X);
+
+            c = need_transform ? half_pi - Y : Y;
+        }
+
+        average = vfma_f64(average, coeff, vdup_n_f64(c));
+    }
+
+    float64 result = vget_lane_f64(average, 0);
+    return result;
+}
+
 float64 reptest_haversine(haversine_computation *hcomps, int32 n, float64 ref_average,
     float64 (*f)(haversine_computation *, int32),
     char const *name)
@@ -416,6 +502,9 @@ int main(int32 argc, char **argv)
     printf("max_error = %+.20lf\n", max_error);
 
     max_error = reptest_haversine(comps, n, average, compute_haversine_buffer_average_F, "haversine F");
+    printf("max_error = %+.20lf\n", max_error);
+
+    max_error = reptest_haversine(comps, n, average, compute_haversine_buffer_average_G, "haversine G");
     printf("max_error = %+.20lf\n", max_error);
 
     return 0;
