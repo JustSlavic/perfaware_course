@@ -1,4 +1,5 @@
 #include "repetition_tester.h"
+#include "os_specifics.h"
 
 #include <string.h>
 #include <stdarg.h>
@@ -151,7 +152,7 @@ bool is_testing(float64 seconds)
 {
     if (g_tester.state == RepTestState_Uninitialized)
     {
-        table_printer__push_column(&g_tester.printer, "Label", 17);
+        table_printer__push_column(&g_tester.printer, "Label", 20);
         table_printer__push_column(&g_tester.printer, "", 3);
         table_printer__push_column(&g_tester.printer, "Time", 17);
         table_printer__push_column(&g_tester.printer, "Bytes", 17);

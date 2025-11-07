@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include "timing.h"
 #include "profiler.h"
-#include "haversine.h"
+
+#include "00_reference_haversine.c"
+
 
 float64 uniform_float64(float64 a, float64 b)
 {
@@ -10,7 +12,6 @@ float64 uniform_float64(float64 a, float64 b)
     float64 result = (1.0 - t) * a + t * b;
     return result;
 }
-
 
 int main(int32 argc, char **argv)
 {
@@ -72,6 +73,5 @@ int main(int32 argc, char **argv)
 }
 
 
-#include "haversine.c"
 #include "profiler.c"
 #include "timing.c"

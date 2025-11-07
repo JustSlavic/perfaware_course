@@ -4,8 +4,9 @@
 
 #include "timing.h"
 #include "json.h"
-#include "haversine.h"
 #include "profiler.h"
+
+#include "00_reference_haversine.c"
 
 #if OS_WINDOWS
 #define WIN32_LEAN_AND_MEAN
@@ -100,6 +101,5 @@ int main(int32 argc, char **argv)
 }
 
 #include "json.c"
-#include "haversine.c"
 #include "profiler.c"
 #include "timing.c"

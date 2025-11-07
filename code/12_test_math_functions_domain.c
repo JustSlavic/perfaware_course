@@ -5,24 +5,16 @@
 
 #include "timing.h"
 #include "json.h"
-#include "haversine.h"
 #include "profiler.h"
+
+#include "00_reference_haversine.c"
+
 
 #if OS_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
-
-uint32 hash_djb2(char const *cstr)
-{
-    // http://www.cse.yorku.ca/~oz/hash.html
-    uint32 h = 5381;
-    int c;
-    while ((c = *cstr++))
-        h = ((h << 5) + h) + c; /* h * 33 + c */
-    return h;
-}
 
 typedef struct
 {
@@ -179,6 +171,5 @@ int main(int32 argc, char **argv)
 }
 
 #include "json.c"
-#include "haversine.c"
 #include "profiler.c"
 #include "timing.c"
