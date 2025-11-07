@@ -14,11 +14,6 @@ typedef float64x1_t float64x1;
 typedef float64x2_t float64x2;
 #endif
 
-enum
-{
-    SineTaylor = 0,
-    SineHorner = 1,
-};
 
 typedef struct
 {
