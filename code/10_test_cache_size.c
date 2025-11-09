@@ -12,16 +12,51 @@
 #include "repetition_tester.h"
 
 /*
+    This test tries to show levels of cache by loading several buffer of different size.
+
     M1 CPU
     gb/s
-    140  *--*--*--*--*--*--*--*--*\
-    120                            \
-    100                             \
-     80                              \*----*---*--*--*--*\
-     60                                                   \*---*---*----*----*----*---*
+    280
+    140  *--*--*--*---*---*---*----*
+    120
+    100
+     80                                 *----*--*--*--*--*
+     60                                                      *---*---*----*----*----*--*
      40
      20
-        1k 2k 4k 8k 16k 32k 64k 128k 256k 512k 1M 2M 4M 8M 16M 32M 64M 128M 256M 512M 1Gb
+         1k 2k 4k 8k 16k 32k 64k 128k 256k 512k 1M 2M 4M 8M 16M 32M 64M 128M 256M 512M 1Gb
+
+
+    Tiger Lake CPU
+    gb/s
+    280  *--*--*--*--*---*
+    140                      *----*----*----*---*
+    120
+    100
+     80
+     60                                            *--*--*---*
+     40                                                          *
+     20                                                              *----*----*----*--*
+        1k 2k 4k 8k 16k 32k 64k 128k 256k 512k  1M 2M 4M 8M 16M 32M 64M 128M 256M 512M 1Gb
+
+
+    By the look of the graph, the M1 chip has 128kB of L1 cache, and 8MB of L2 cache.
+    There's no L3 cache on the M-series chips.
+
+    The Tiger Lake has 32kB of L1 cache, 1MB of L2 cache, and 16-32MB L3 cache.
+
+    Data from the Internet:
+
+    L1 Instruction Cache: 8 x 32 KB
+    L1 Data Cache: 8 x 48 KB
+    L2 Cache: 8 x 1280 KB
+    L3 Cache: 24 MB
+
+    or from another site:
+
+    Cache L1:   80 KB (per core)
+    Cache L2:   1.25 MB (per core)
+    Cache L3:   24 MB (shared)
 */
 
 ASM_CALL void test_cache_size_asm(uint64 count, void *data, uint64 mask);

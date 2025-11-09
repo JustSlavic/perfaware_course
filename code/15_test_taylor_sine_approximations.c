@@ -208,8 +208,10 @@ int main()
 #endif
         compute_error_result error = compute_error_function(function_compares + i, NULL);
         printf("    %s\n"
+               "        domain: [%lf, %lf]\n"
                "        e(%+.20lf) = %.20lf\n\n",
             function_compares[i].name,
+            function_compares[i].domain.min, function_compares[i].domain.max,
             error.x, error.e);
 #if 0
         fclose(error_file);

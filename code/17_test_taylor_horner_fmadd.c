@@ -13,6 +13,9 @@ typedef float64x1_t float64x1;
 typedef float64x2_t float64x2;
 #endif
 
+#if OS_WINDOWS
+#include <immintrin.h>
+#endif // OS_WINDOWS
 
 typedef struct
 {
@@ -61,6 +64,7 @@ int64 compute_taylor_term_denominator(uint64 power)
     return sign * compute_factorial(power);
 }
 
+#if OS_MAC
 float64 sine_taylor_horner(float64 x, int32 max_power)
 {
     float64x2 x2 = vdupq_n_f64(x * x);
@@ -71,9 +75,26 @@ float64 sine_taylor_horner(float64 x, int32 max_power)
         a = vfmaq_f64(b, a, x2);
     }
     float64x2 simd_result = vmulq_f64(a, vdupq_n_f64(x));
-    double result = vgetq_lane_f64(simd_result, 0);
+    float64 result = vgetq_lane_f64(simd_result, 0);
     return result;
 }
+#endif // OS_MAC
+
+#if OS_WINDOWS
+float64 sine_taylor_horner(float64 x, int32 max_power)
+{
+    __m128d x2 = _mm_set_sd(x * x);
+    __m128d a = _mm_set_sd(0);
+    for (int power = max_power; power > 0; power -= 2)
+    {
+        __m128d b = _mm_set_sd(1.0 / compute_taylor_term_denominator(power));
+        a = _mm_fmadd_sd(a, x2, b);
+    }
+    __m128d simd_result = _mm_mul_sd(a, _mm_set_sd(x));
+    float64 result = _mm_cvtsd_f64(simd_result);
+    return result;
+}
+#endif // OS_WINDOWS
 
 compute_taylor_result compute_error_sine_taylor(
     math_domain domain,
@@ -146,8 +167,9 @@ int main()
     for (int i = 0; i < ARRAY_COUNT(results); i++)
     {
         if (results[i].power == 0) continue;
-        printf("%s of %dth power: e = %+.30lf\n",
-            results[i].name,
+        int n = printf("%s", results[i].name);
+        printf("%.*sof %dth power: e = %+.30lf\n",
+            15-n, spaces,
             results[i].power, results[i].e);
     }
 

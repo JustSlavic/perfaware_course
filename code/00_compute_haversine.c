@@ -14,16 +14,6 @@
 #endif
 
 
-uint32 hash_djb2(char const *cstr)
-{
-    // http://www.cse.yorku.ca/~oz/hash.html
-    uint32 h = 5381;
-    int c;
-    while ((c = *cstr++))
-        h = ((h << 5) + h) + c; /* h * 33 + c */
-    return h;
-}
-
 typedef struct
 {
     float64 x0, y0;
@@ -35,7 +25,8 @@ int main(int32 argc, char **argv)
 {
     PROFILE_BEGIN();
 
-    FILE *input_file = fopen("data.json", "r");
+    char const *filename = "data.json";
+    FILE *input_file = fopen(filename, "r");
     if (input_file)
     {
         fseek(input_file, 0, SEEK_END);
@@ -93,6 +84,11 @@ int main(int32 argc, char **argv)
         }
 
         printf("Average distance = %lf\n", average);
+    }
+    else
+    {
+        printf("Error: Could not open file '%s' - make sure you run '00_generate_haversine_data' first.\n", filename);
+        exit(1);
     }
 
     PROFILE_END();

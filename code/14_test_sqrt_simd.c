@@ -4,13 +4,17 @@
 #include <string.h>
 
 #if OS_MAC
-// Neon
 #include <arm_neon.h>
 typedef float32x2_t float32x2;
 typedef float32x4_t float32x4;
 typedef float64x1_t float64x1;
 typedef float64x2_t float64x2;
-#endif
+#endif // OS_MAC
+
+#if OS_WINDOWS
+#include <immintrin.h>
+#endif // OS_WINDOWS
+
 
 #include "base.h"
 #include "math_reference_tables.c"
@@ -30,7 +34,7 @@ typedef struct
 } function_to_function_compare;
 
 #if OS_WINDOWS
-float64 sqrt_simd_sd(float64 x)
+float64 sqrt_see_64(float64 x)
 {
     __m128d xmm0 = _mm_set_sd(x);
     __m128d xmm1 = _mm_sqrt_sd(xmm0, xmm0);
@@ -38,15 +42,56 @@ float64 sqrt_simd_sd(float64 x)
     return result;
 }
 
-float64 sqrt_simd_ss(float64 x)
+float64 sqrt_see_32(float64 x)
 {
-    __m128 xmm0 = _mm_set_ss(x);
+    __m128 xmm0 = _mm_set_ss((float32) x);
     __m128 xmm1 = _mm_sqrt_ss(xmm0);
     float64 result = _mm_cvtss_f32(xmm1);
     return result;
 }
 
-float64 rrsqrt_simd_ss
+float64 rrsqrt_sse(float64 x)
+{
+    __m128 xmm0 = _mm_set_ss((float32) x);
+    __m128 xmm1 = _mm_rsqrt_ss(xmm0);
+    __m128 xmm2 = _mm_rcp_ss(xmm1);
+    float64 result = _mm_cvtss_f32(xmm2);
+    return result;
+}
+
+function_to_function_compare function_compares[] =
+{
+    {
+        .name = "sqrt_see_64",
+        .reference_function = sqrt,
+        .function = sqrt_see_64,
+        .domain = {
+            .min = 0.0,
+            .max = 1.0,
+        },
+        .step = 0.01,
+    },
+    {
+        .name = "sqrt_see_32",
+        .reference_function = sqrt,
+        .function = sqrt_see_32,
+        .domain = {
+            .min = 0.0,
+            .max = 1.0,
+        },
+        .step = 0.01,
+    },
+    {
+        .name = "rrsqrt_sse",
+        .reference_function = sqrt,
+        .function = rrsqrt_sse,
+        .domain = {
+            .min = 0.0,
+            .max = 1.0,
+        },
+        .step = 0.01,
+    },
+};
 #endif // OS_WINDOWS
 
 #if OS_MAC
@@ -99,11 +144,9 @@ double rrsqrt_neon_64bit(double x)
     double result = vget_lane_f64(xmm2, 0);
     return result;
 }
-#endif // OS_MAC
 
 function_to_function_compare function_compares[] =
 {
-#if OS_MAC
     {
         .name = "sqrt_neon_32x2",
         .reference_function = sqrt,
@@ -164,8 +207,8 @@ function_to_function_compare function_compares[] =
         },
         .step = 0.01,
     },
-#endif // OS_MAC
 };
+#endif // OS_MAC
 
 typedef struct
 {

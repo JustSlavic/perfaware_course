@@ -12,6 +12,33 @@
 #include "repetition_tester.h"
 
 /*
+    This test is designed to find the maximum available load throughput.
+    We know that on my Tiger Lake processor there are only two load execution ports,
+    so we fix this parameter, and start varying the throughput of one instruction.
+
+    x86_64
++----------------------+-----+-------------------+-------------------+----------------------+
+| Label                |     | Time              | Bytes             | Page faults          |
++----------------------+-----+-------------------+-------------------+----------------------+
+| load_2x4bytes        | Min | 28244 us          | 35.406295 gb/s    |                      |
+|                      | Max | 33363 us          | 29.973601 gb/s    |                      |
+|                      | Avg | 29440 us          |                   |                      |
++----------------------+-----+-------------------+-------------------+----------------------+
+| load_2x8bytes        | Min | 14158 us          | 70.629948 gb/s    |                      |
+|                      | Max | 18071 us          | 55.337543 gb/s    |                      |
+|                      | Avg | 14884 us          |                   |                      |
++----------------------+-----+-------------------+-------------------+----------------------+
+| load_2x16bytes       | Min | 7031 us           | 142.235944 gb/s   |                      |
+|                      | Max | 10332 us          | 96.783894 gb/s    |                      |
+|                      | Avg | 7712 us           |                   |                      |
++----------------------+-----+-------------------+-------------------+----------------------+
+| load_2x32bytes       | Min | 7053 us           | 141.779894 gb/s   |                      |
+|                      | Max | 8184 us           | 122.187239 gb/s   |                      |
+|                      | Avg | 7559 us           |                   |                      |
++----------------------+-----+-------------------+-------------------+----------------------+
+
+    The result shows that loading into xmm register renders the same speed as loading the ymm register,
+    which is unexpected for me. Probably there's a some other limit.
 */
 
 typedef ASM_CALL void (*callback_t)(uint64, void *);

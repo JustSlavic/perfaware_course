@@ -48,10 +48,25 @@
 |                   | Avg | 338327 us         |                   |                      |
 +-------------------+-----+-------------------+-------------------+----------------------+
 
+    x86_64
++----------------------+-----+-------------------+-------------------+----------------------+
+| Label                |     | Time              | Bytes             | Page faults          |
++----------------------+-----+-------------------+-------------------+----------------------+
+| rat_add_asm          | Min | 453907 us         | 2.203093 gb/s     |                      |
+|                      | Max | 468365 us         | 2.135086 gb/s     |                      |
+|                      | Avg | 457509 us         |                   |                      |
++----------------------+-----+-------------------+-------------------+----------------------+
+| rat_mov_add_asm      | Min | 302796 us         | 3.302551 gb/s     |                      |
+|                      | Max | 322440 us         | 3.101350 gb/s     |                      |
+|                      | Avg | 307431 us         |                   |                      |
++----------------------+-----+-------------------+-------------------+----------------------+
+
     The result on M1 CPU clearly shows that although using moves
     is seemingly more work, the dependency becomes "fake" and now
     computation happens two times faster, which aligns with our
     mental model of the CPU.
+
+    For the x86_64 the result is similar, except the speedup is 50%, not 100%.
 */
 
 typedef ASM_CALL void (*callback_t)(uint64);

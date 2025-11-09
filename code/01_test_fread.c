@@ -10,7 +10,8 @@
 #include "profiler.h"
 #include "repetition_tester.h"
 
-void reptest_fread()
+
+void reptest_fread(void)
 {
     char const *filename = "data.json";
     uint64 filesize = get_filesize(filename);
@@ -30,7 +31,7 @@ void reptest_fread()
     free_pages(memory, filesize);
 }
 
-void reptest_mmap_fread()
+void reptest_mmap_fread(void)
 {
     char const *filename = "data.json";
     uint64 filesize = get_filesize(filename);
@@ -54,7 +55,7 @@ void reptest_mmap_fread()
 int main()
 {
     g_tester.print_results = true;
-    while (true)
+    // while (true)
     {
         reptest_fread();
         reptest_mmap_fread();
