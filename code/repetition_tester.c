@@ -1,6 +1,8 @@
 #include "repetition_tester.h"
 #include "os_specifics.h"
+#include "timing.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 
