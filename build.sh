@@ -18,7 +18,7 @@ function compile_test_arm64_mac() {
 }
 
 function compile_test_arm64_mac_asm() {
-    assembly_source_name="code/$1.arm64.S"
+    assembly_source_name="code/asm_arm64/$1.S"
     assembly_object_name="build/$1_asm.o"
     source_name="code/$1.c"
     executable_name="build/$1"
