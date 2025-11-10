@@ -93,24 +93,3 @@ rem 23 prevent optimizations
 clang -ggdb -O3 -Wall -Werror -Wno-microsoft-enum-forward-reference -DOS_WINDOWS=1 -DCOMPILER_CLANG=1 -mavx2 -mfma -I../code -o 23_test_preventing_optimizations.exe ../code/23_test_preventing_optimizations.c
 echo 23_test_preventing_optimizations.c
 rem cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe23_test_preventing_optimizations ../code/23_test_preventing_optimizations.c
-
-
-rem nasm -f win64 -o bpredict.obj ../code/test_branch_predictor.asm
-rem lib bpredict.obj
-rem cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Febpredict ../code/test_branch_predictor.c
-
-rem nasm -f win64 -o rat.obj ../code/rat.asm
-rem lib rat.obj
-rem cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Ferat ../code/test_rat.c
-
-rem nasm -f win64 -o exeports.obj ../code/test_execution_ports.asm
-rem lib exeports.obj
-rem cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Feeports ../code/test_execution_ports.c
-
-rem nasm -f win64 -o simdload.obj ../code/simd_load.asm
-rem lib simdload.obj
-rem cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fesimd_load ../code/test_simd_load.c
-
-rem nasm -f win64 -o cachesize.obj ../code/cache_size.asm
-rem lib cachesize.obj
-rem cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fecache_size ../code/test_cache_size.c
