@@ -15,6 +15,17 @@
 #include <windows.h>
 #endif
 
+/*
+    Replace math functions with functions that count their domain.
+
+Average distance = 10011.641728
+Domains:
+         sqrt(x) x \in [0.000000, 1.000000]
+         sin(x)  x \in [-3.137182, 3.136128]
+         cos(x)  x \in [-1.570796, 1.570796]
+         asin(x) x \in [0.000114, 1.000000]
+*/
+
 
 typedef struct
 {

@@ -16,6 +16,23 @@ typedef float64x2_t float64x2;
 
 #include "math_reference_tables.c"
 
+/*
+    Compare accuracy of the CRT's functions to table values from WolframAlpha
+    and compare accuracy of stub functions to stdlib functions.
+    We will use this method of compare to make our own math functions.
+
+stdlib vs table:
+          sqrt 0.00000000000000011102
+           sin 0.00000000000000038858
+           cos 0.00000000000000036082
+          asin 0.00000000000000022204
+stdlib vs stubs:
+    sqrt_0                        f(-3.141593) = 1.00000000000000000000
+    sin_0                         f(-1.571593) = 0.99999968293183461032
+    cos_0                         f(-3.141593) = 1.00000000000000000000
+    asin_0                        f(+0.990000) = 1.42925685347047393137
+*/
+
 typedef struct
 {
     char const *name;

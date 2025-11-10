@@ -17,6 +17,18 @@ typedef float64x2_t float64x2;
 #include <immintrin.h>
 #endif // OS_WINDOWS
 
+/*
+    Compare accuracy of computing sine through Horner's rule naively
+    and via fused multiply add.
+
+    x86_64:
+Horner FMA     of 19th power: e = +0.000000000000000222044604925031
+Horner         of 19th power: e = +0.000000000000000333066907387547
+Horner         of 21th power: e = +0.000000000000003330669073875470
+Horner FMA     of 21th power: e = +0.000000000000003330669073875470
+    ...
+*/
+
 typedef struct
 {
     float64 min, max;
@@ -64,8 +76,21 @@ int64 compute_taylor_term_denominator(uint64 power)
     return sign * compute_factorial(power);
 }
 
-#if OS_MAC
 float64 sine_taylor_horner(float64 x, int32 max_power)
+{
+    double x2 = x * x;
+    double a = 0;
+    for (int power = max_power; power > 0; power -= 2)
+    {
+        double b = 1.0 / compute_taylor_term_denominator(power);
+        a = a*x2 + b;
+    }
+    double result = a * x;
+    return result;
+}
+
+#if OS_MAC
+float64 sine_taylor_horner_fma(float64 x, int32 max_power)
 {
     float64x2 x2 = vdupq_n_f64(x * x);
     float64x2 a = vdupq_n_f64(0);
@@ -81,7 +106,7 @@ float64 sine_taylor_horner(float64 x, int32 max_power)
 #endif // OS_MAC
 
 #if OS_WINDOWS
-float64 sine_taylor_horner(float64 x, int32 max_power)
+float64 sine_taylor_horner_fma(float64 x, int32 max_power)
 {
     __m128d x2 = _mm_set_sd(x * x);
     __m128d a = _mm_set_sd(0);
@@ -132,23 +157,33 @@ int main()
 
     for (int power = 1; power < 32; power += 2)
     {
-        compute_taylor_result error = compute_error_sine_taylor(
-            (math_domain){ .min = 0, .max = half_pi },
-            0.005*pi,
-            power,
-            sine_taylor);
-        error.name = "Taylor";
-        results[result_count++] = error;
-    }
-    for (int power = 1; power < 32; power += 2)
-    {
-        compute_taylor_result error = compute_error_sine_taylor(
-            (math_domain){ .min = 0, .max = half_pi },
-            0.005*pi,
-            power,
-            sine_taylor_horner);
-        error.name = "Horner FMA";
-        results[result_count++] = error;
+        // {
+        //     compute_taylor_result error = compute_error_sine_taylor(
+        //         (math_domain){ .min = 0, .max = half_pi },
+        //         0.005*pi,
+        //         power,
+        //         sine_taylor);
+        //     error.name = "Taylor";
+        //     results[result_count++] = error;
+        // }
+        {
+            compute_taylor_result error = compute_error_sine_taylor(
+                (math_domain){ .min = 0, .max = half_pi },
+                0.005*pi,
+                power,
+                sine_taylor_horner);
+            error.name = "Horner";
+            results[result_count++] = error;
+        }
+        {
+            compute_taylor_result error = compute_error_sine_taylor(
+                (math_domain){ .min = 0, .max = half_pi },
+                0.005*pi,
+                power,
+                sine_taylor_horner_fma);
+            error.name = "Horner FMA";
+            results[result_count++] = error;
+        }
     }
 
     for (int i = 0; i < ARRAY_COUNT(results); i++)

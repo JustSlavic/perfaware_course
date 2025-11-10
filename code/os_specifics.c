@@ -11,6 +11,7 @@ uint64 get_filesize(char const *filename)
     HANDLE handle = CreateFileA(filename, GENERIC_READ, 0, 0, OPEN_EXISTING, 0, 0);
     LARGE_INTEGER result;
     BOOL success = GetFileSizeEx(handle, &result);
+    (void) success;
     CloseHandle(handle);
     return result.QuadPart;
 }

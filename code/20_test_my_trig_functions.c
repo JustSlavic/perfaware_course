@@ -6,6 +6,16 @@
 #include "base.h"
 #include "20_my_trig_functions.c"
 
+/*
+    Test accuracy of all my new math functions
+
+    x86_64
+my_sqrt               e = +0.000000000000000000000000000000
+my_sine               e = +0.000000000000000222044604925031
+my_cosine             e = +0.000000000000000444089209850063
+my_arcsine            e = +0.000000000000000444089209850063
+*/
+
 typedef struct
 {
     float64 min, max;

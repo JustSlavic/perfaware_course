@@ -15,6 +15,15 @@ typedef float64x2_t float64x2;
 #include <immintrin.h>
 #endif // OS_WINDOWS
 
+/*
+    Find method of computing the square root by using SIMD intrinsics.
+
+    x86_64:
+stdlib vs stubs:
+    sqrt_see_64                   f(+0.000000) = 0.00000000000000000000
+    sqrt_see_32                   f(+0.420000) = 0.00000003896462652531
+    rrsqrt_sse                    f(+0.930000) = 0.00037581828679578155
+*/
 
 #include "base.h"
 #include "math_reference_tables.c"

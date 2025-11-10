@@ -7,6 +7,14 @@
 #include "21_my_haversine.c"
 
 
+/*
+Reference Average = 10867.89726242571123293601
+My Average = 10867.89726242571123293601
+Max Error = +0.00000000000545696821
+Answer Error = +0.00000000000000000000
+*/
+
+
 float64 uniform_float64(float64 a, float64 b)
 {
     float64 t = (float64) rand() / (float64) RAND_MAX;

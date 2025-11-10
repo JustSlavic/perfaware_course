@@ -74,6 +74,27 @@ cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe16_test_taylor_horner ../c
 rem 17 test accuracy of horner methods using fmadds
 cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe17_test_taylor_horner_fmadd ../code/17_test_taylor_horner_fmadd.c
 
+rem 18 test accuracy of sine approximation compare taylor and minimax accuracy
+cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe18_test_fma_table ../code/18_test_fma_table.c
+
+rem 19 arcsine approximation
+cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe19_test_arcsine_part_1 ../code/19_test_arcsine_part_1.c
+
+rem 20 test all my new math functions accuracy
+cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe20_test_my_trig_functions ../code/20_test_my_trig_functions.c
+
+rem 21 test error between my haversine with my math functions and CRT haversine
+cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe21_test_my_haversine ../code/21_test_my_haversine.c
+
+rem 22 remove waste
+cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe22_test_remove_waste ../code/22_test_remove_waste.c
+
+rem 23 prevent optimizations
+clang -ggdb -O3 -Wall -Werror -Wno-microsoft-enum-forward-reference -DOS_WINDOWS=1 -DCOMPILER_CLANG=1 -mavx2 -mfma -I../code -o 23_test_preventing_optimizations.exe ../code/23_test_preventing_optimizations.c
+echo 23_test_preventing_optimizations.c
+rem cl /nologo /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Fe23_test_preventing_optimizations ../code/23_test_preventing_optimizations.c
+
+
 rem nasm -f win64 -o bpredict.obj ../code/test_branch_predictor.asm
 rem lib bpredict.obj
 rem cl /Zi /O2 %WARNINGS% %DEFINES% %INCLUDES% /Febpredict ../code/test_branch_predictor.c
